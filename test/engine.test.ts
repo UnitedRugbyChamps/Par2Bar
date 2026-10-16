@@ -1,10 +1,11 @@
+/// <reference types="node" />
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import * as E from '../src/core/engine.ts';
 import type { Tour, ScoreMap } from '../src/core/types.ts';
 
-const data = JSON.parse(readFileSync(new URL('./fixtures/sample-tours.json', import.meta.url), 'utf8')) as {
+const data = JSON.parse(readFileSync(new URL('../src/sample/sample-tours.json', import.meta.url), 'utf8')) as {
   tours: Tour[];
   scores: ScoreMap;
 };
