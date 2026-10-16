@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function me() { return request.auth.uid; }
+    function tour(id) { return get(/databases/$(database)/documents/tours/$(id)).data; }
+    function member(id) { return signedIn() && me() in tour(id).memberUids; }
+    function admin(t) { return t.ownerUid == me() || me() in t.adminUids; }
+    function onlyChanges(keys) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys); }
+
+    match /users/{uid} {
+      allow read: if signedIn();
+      allow write: if signedIn() && me() == uid;
+    }
+    // push tokens are only read by Cloud Functions
+    match /pushTokens/{uid} {
+      allow write: if signedIn() && me() == uid;
+    }
+    match /joinCodes/{code} {
+      allow get: if signedIn();
+      allow create: if signedIn() && tour(request.resource.data.tourId).ownerUid == me();
+      allow delete: if signedIn() && tour(resource.data.tourId).ownerUid == me();
+    }
+    match /courses/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update: if signedIn() && (resource.data.createdBy == me() || resource.data.source == 'golfcourseapi');
+    }
+    match /tours/{id} {
+      allow read: if signedIn() && me() in resource.data.memberUids;
+      allow create: if signedIn() && request.resource.data.ownerUid == me() && request.resource.data.memberUids == [me()];
+      allow delete: if signedIn() && resource.data.ownerUid == me();
+      allow update: if signedIn() && (
+        admin(resource.data)
+        // anyone with the join code can add themselves; members can leave
+        || (onlyChanges(['memberUids']) && request.resource.data.memberUids.toSet().difference(resource.data.memberUids.toSet()).hasOnly([me()]))
+        || (onlyChanges(['memberUids']) && me() in resource.data.memberUids && resource.data.memberUids.toSet().difference(request.resource.data.memberUids.toSet()).hasOnly([me()]))
+        // members can claim their player and update their own index
+        || (me() in resource.data.memberUids && onlyChanges(['players']))
+      );
+
+      match /scores/{sid} {
+        allow read, write: if member(id);
+      }
+      match /events/{eid} {
+        allow read: if member(id);
+      }
+    }
+  }
+}

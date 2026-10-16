@@ -21,7 +21,7 @@ export default function Manage() {
       <H right={<P sub>{tour.rounds.length}</P>}>Rounds and tee times</H>
       <List>
         {tour.rounds.map((r) => (
-          <Row key={r.id} title={r.name} subtitle={`${r.date} · ${r.course.name || 'no course yet'} · ${r.groups.length} groups`} onPress={() => router.push(`/tour/${id}/round?rid=${r.id}`)} />
+          <Row key={r.id} title={r.name} subtitle={`${r.date} · ${r.course.name || 'no course yet'} · ${r.groups.length} ${r.groups.length === 1 ? "group" : "groups"}`} onPress={() => router.push(`/tour/${id}/round?rid=${r.id}`)} />
         ))}
         <Row left={<Icon name="add-circle" color={C.brand} />} title="Add a round" onPress={() => router.push(`/tour/${id}/round?rid=new`)} />
       </List>

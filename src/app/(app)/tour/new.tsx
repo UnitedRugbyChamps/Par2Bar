@@ -47,7 +47,8 @@ export default function NewTour() {
             comps: [{ id: 'main', name: 'Stableford', type: 'stableford', basis: 'net', allowance: 100, display: 'points', rounds: [], main: true }],
             cup: null,
           });
-          router.replace(`/tour/${id}/manage`);
+          router.replace(`/tour/${id}`);
+          router.push(`/tour/${id}/manage`);
         }}
       />
     </Screen>

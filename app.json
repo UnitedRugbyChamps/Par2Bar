@@ -8,7 +8,7 @@
     "scheme": "tourcard",
     "userInterfaceStyle": "light",
     "ios": {
-      "icon": "./assets/expo.icon",
+      "icon": "./assets/images/icon.png",
       "bundleIdentifier": "com.tourcard.app",
       "supportsTablet": true
     },
@@ -33,7 +33,7 @@
         {
           "backgroundColor": "#0F5132",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 160
         }
       ],
       [

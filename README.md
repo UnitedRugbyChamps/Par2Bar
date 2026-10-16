@@ -1,56 +1,76 @@
-# Welcome to your Expo app 👋
+# Tour Card
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A golf tour scoring app for iPhone and Android: accounts, handicaps, courses,
+games, tee times, live leaderboards, a Ryder Cup style team match, and push
+notifications as scores come in. Built with Expo (React Native) and Firebase.
 
-## Get started
+## What it does
 
-1. Install dependencies
+- **Accounts**: sign up, sign in, sign out, password reset. Each player keeps
+  a WHS handicap index and their notification settings.
+- **Tours**: dates, location, time zone, a six-character invite code, organisers
+  and members. Players don't need the app to be scored; members can claim their
+  player when they join.
+- **Handicaps**: WHS course handicap = Index × Slope ÷ 113 + (Course Rating − Par),
+  per round and tee, with per-round overrides and allowances per game. Team
+  handicaps for foursomes (50%) and scramble (35/15, 30/20/10, 25/20/15/10).
+- **Courses**: add a course from its scorecard (tees with rating, slope, par and
+  stroke index per hole). Worldwide course search turns on with a
+  GolfCourseAPI key (see below).
+- **Games** (any number at once): Stableford (points, or 36-a-round), stroke play
+  gross or net, skins with carry-overs, scramble, match play, Nassau, low ball /
+  high ball.
+- **Team cup**: two teams, sessions of fourballs, foursomes or singles, live
+  match status (2 UP thru 12, 3&2, halved), score and projection.
+- **Rounds and tee times**: groups made automatically or by hand, 1st or 10th
+  tee starts.
+- **Scoring**: hole-by-hole entry for a whole group, shots received shown per
+  player, running points; scorecards with birdie/bogey colouring.
+- **Feed and notifications**: birdies and better, new leaders, cup match
+  swings and results, round finished, every score from players you follow or
+  your own group, and tee time reminders 30 minutes before you tee off. Each
+  type can be switched on or off.
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Run it
 
 ```bash
-npm run reset-project
+npm install
+npx expo start          # scan the QR code with Expo Go, or press w for web
+npm test                # scoring engine and notification rules
+npm run typecheck && npx expo lint
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+Without Firebase keys the app runs in **test mode**: accounts, tours and scores
+are saved on the device, and notifications are shown locally. On the Tours tab
+"Load two sample tours" adds two finished three-round tours to look around.
 
-### Other setup steps
+## Connect Firebase (shared data and push)
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+1. Create a Firebase project; enable Authentication → Email/Password and Firestore.
+2. Add a Web app in the Firebase console and copy its config into `.env`
+   (see `.env.example`). The app switches to Firebase automatically.
+3. Deploy the rules and functions (Blaze plan needed for functions):
+   ```bash
+   npm --prefix functions install
+   npx firebase-tools deploy --only firestore,functions
+   ```
+4. Push notifications go through Expo's push service. Run `npx eas-cli init`
+   so the app has an EAS project id, then build a development or store build
+   with `npx eas-cli build`. Optionally set `EXPO_ACCESS_TOKEN` for the functions.
 
-## Learn more
+## Worldwide courses
 
-To learn more about developing your project with Expo, look at the following resources:
+Set `EXPO_PUBLIC_GOLFCOURSE_API_KEY` (golfcourseapi.com) to search courses
+worldwide; picking one saves it so everyone on the tour shares the same card.
+`src/courses/golfcourseapi.ts` is the only file tied to that provider.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Layout
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- `src/core/` scoring engine, handicaps and notification rules. No React Native
+  imports; shared with the Cloud Functions and tested with `node --test`.
+- `src/backend/` the `Backend` interface with `offline.ts` (on-device) and
+  `firebase.ts` implementations.
+- `src/app/` screens (Expo Router).
+- `functions/` Cloud Functions: feed items and pushes on every score, tee time
+  reminders every five minutes.
+- `firestore.rules` who can read and change what.
