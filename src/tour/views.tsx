@@ -4,8 +4,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import * as E from '@/core/engine';
 import type { Comp, ScoreMap, Tour, TourEvent } from '@/core/types';
-import { Avatar, Button, Card, Chip, Empty, H, Icon, List, P, Row } from '@/ui/kit';
-import { C, S } from '@/ui/theme';
+import { Avatar, Button, Card, Chip, Display, Empty, H, Icon, Label, List, Num, P, Row } from '@/ui/kit';
+import { C, F, R, S, shadow } from '@/ui/theme';
 import { compLabel, fmtDate } from './helpers';
 
 export const teamOf = (t: Tour, id?: string) => t.teams.find((x) => x.id === id);
@@ -69,12 +69,13 @@ export function Standings({ tour, scores, comp }: { tour: Tour; scores: ScoreMap
             <Pressable
               key={row.uid}
               onPress={() => router.push(`/tour/${tour.id}/card?rid=${lb.rounds[cur].id}&uid=${row.uid}`)}
-              style={({ pressed }) => [st.tr, pressed && { backgroundColor: C.bg }]}>
-              <Text style={[st.td, st.pos, { fontWeight: '700' }]}>{row.pos ? `${row.tied ? 'T' : ''}${row.pos}` : ''}</Text>
+              style={({ pressed }) => [st.tr, row.pos === 1 && st.leadRow, pressed && { backgroundColor: C.soft }]}>
+              {row.pos === 1 && <View style={st.leadBar} />}
+              <Text style={[st.td, st.pos, { fontFamily: F.heavy }]}>{row.pos ? `${row.tied ? 'T' : ''}${row.pos}` : ''}</Text>
               <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 {row.team && teamColor(tour, row.team) ? <View style={[st.dot, { backgroundColor: teamColor(tour, row.team) }]} /> : null}
                 <View style={{ flex: 1 }}>
-                  <Text style={[st.td, { fontWeight: '600' }]} numberOfLines={1}>
+                  <Text style={[st.td, { fontFamily: F.semi }]} numberOfLines={1}>
                     {row.name}
                   </Text>
                   {lb.rounds.length > 1 && (
@@ -140,23 +141,36 @@ export function CupView({ tour, scores }: { tour: Tour; scores: ScoreMap }) {
   const fmt = (n: number) => (n % 1 ? `${Math.floor(n)}½` : String(n));
   return (
     <View style={{ gap: S.md }}>
-      <Card style={{ alignItems: 'center' }}>
-        <Text style={{ fontSize: 13, fontWeight: '700', color: C.sub, letterSpacing: 1 }}>{tour.cup.name.toUpperCase()}</Text>
+      <View style={[{ backgroundColor: C.ink, borderRadius: R.lg, padding: S.xl, alignItems: 'center', gap: S.sm }, shadow]}>
+        <Label color={C.champagne}>{tour.cup.name}</Label>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: S.lg }}>
-          <View style={{ alignItems: 'center', flex: 1 }}>
-            <Text style={[st.cupScore, { color: A?.color }]}>{fmt(c.a)}</Text>
-            <Text style={st.cupTeam}>{A?.name}</Text>
+          <View style={{ alignItems: 'center', flex: 1, gap: 2 }}>
+            <Num size={56} color={C.white}>
+              {fmt(c.a)}
+            </Num>
+            <Display size={13} color={C.white}>
+              {A?.name}
+            </Display>
           </View>
-          <Text style={{ fontSize: 22, color: C.faint }}>–</Text>
-          <View style={{ alignItems: 'center', flex: 1 }}>
-            <Text style={[st.cupScore, { color: B?.color }]}>{fmt(c.b)}</Text>
-            <Text style={st.cupTeam}>{B?.name}</Text>
+          <Text style={{ fontSize: 22, color: '#444', fontFamily: F.display }}>/</Text>
+          <View style={{ alignItems: 'center', flex: 1, gap: 2 }}>
+            <Num size={56} color={C.champagne}>
+              {fmt(c.b)}
+            </Num>
+            <Display size={13} color={C.champagne}>
+              {B?.name}
+            </Display>
           </View>
         </View>
-        <P sub style={{ fontSize: 13 }}>
+        <View style={{ flexDirection: 'row', height: 4, alignSelf: 'stretch', borderRadius: 2, overflow: 'hidden', backgroundColor: '#2A2A28', marginTop: S.sm }}>
+          <View style={{ flex: c.projA || 0.0001, backgroundColor: C.white }} />
+          <View style={{ flex: Math.max(0, c.avail - c.projA - c.projB) || 0.0001 }} />
+          <View style={{ flex: c.projB || 0.0001, backgroundColor: C.champagne }} />
+        </View>
+        <Text style={{ color: C.faint, fontFamily: F.medium, fontSize: 12 }}>
           {c.a >= c.need ? `${A?.name} win the cup` : c.b >= c.need ? `${B?.name} win the cup` : `Projected ${fmt(c.projA)} – ${fmt(c.projB)} · ${fmt(c.need)} to win`}
-        </P>
-      </Card>
+        </Text>
+      </View>
       {tour.cup.sessions.map((s, si) => {
         const r = tour.rounds.find((x) => x.id === s.rid);
         const ms = c.matches.filter((m) => m.si === si);
@@ -167,19 +181,18 @@ export function CupView({ tour, scores }: { tour: Tour; scores: ScoreMap }) {
             </H>
             <View style={st.table}>
               {ms.map((m) => {
-                const lead = m.lead === 'a' ? A : m.lead === 'b' ? B : null;
                 const label = !m.st.thru ? '–' : m.st.done ? (m.lead ? (m.st.margin === '1 UP' ? '1 UP' : m.st.margin) : 'HALVED') : `${m.st.margin === 'A/S' ? 'A/S' : m.st.margin}`;
                 return (
                   <View key={m.mi} style={[st.tr, { paddingVertical: 10 }]}>
-                    <Text style={[st.td, { flex: 1, textAlign: 'right', fontWeight: m.lead === 'a' ? '800' : '500', color: m.lead === 'a' ? A?.color : C.ink }]} numberOfLines={2}>
+                    <Text style={[st.td, { flex: 1, textAlign: 'right', fontFamily: m.lead === 'a' ? F.heavy : F.medium, color: C.ink }]} numberOfLines={2}>
                       {m.names.a}
                     </Text>
-                    <View style={[st.matchPill, { backgroundColor: lead?.color ?? (m.st.thru ? C.faint : C.line) }]}>
-                      <Text style={{ color: '#fff', fontWeight: '800', fontSize: 13 }}>{label}</Text>
-                      {m.st.thru > 0 && !m.st.done && <Text style={{ color: '#fff', fontSize: 10 }}>thru {m.st.thru}</Text>}
-                      {m.st.done && <Text style={{ color: '#fff', fontSize: 10 }}>final</Text>}
+                    <View style={[st.matchPill, { backgroundColor: m.lead === 'a' ? C.ink : m.lead === 'b' ? C.champagne : m.st.thru ? C.soft : C.bg }]}>
+                      <Text style={{ color: m.lead === 'a' ? C.white : C.ink, fontFamily: F.heavy, fontSize: 13 }}>{label}</Text>
+                      {m.st.thru > 0 && !m.st.done && <Text style={{ color: m.lead === 'a' ? C.faint : C.sub, fontSize: 10, fontFamily: F.medium }}>thru {m.st.thru}</Text>}
+                      {m.st.done && <Text style={{ color: m.lead === 'a' ? C.faint : C.sub, fontSize: 10, fontFamily: F.medium }}>final</Text>}
                     </View>
-                    <Text style={[st.td, { flex: 1, fontWeight: m.lead === 'b' ? '800' : '500', color: m.lead === 'b' ? B?.color : C.ink }]} numberOfLines={2}>
+                    <Text style={[st.td, { flex: 1, fontFamily: m.lead === 'b' ? F.heavy : F.medium, color: C.ink }]} numberOfLines={2}>
                       {m.names.b}
                     </Text>
                   </View>
@@ -211,14 +224,20 @@ export function TeeSheet({ tour, canScore }: { tour: Tour; canScore: boolean }) 
           {r.groups.map((g, gi) => (
             <Card key={g.id} style={{ gap: 6 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: S.sm }}>
-                <Icon name="time-outline" color={C.brand} />
-                <Text style={{ fontWeight: '800', fontSize: 17, color: C.ink, flex: 1 }}>
+                <Text style={{ fontFamily: F.heavy, fontSize: 22, color: C.ink, flex: 1, fontVariant: ['tabular-nums'] }}>
                   {g.teeTime || `Group ${gi + 1}`}
                   {g.startHole !== 1 ? `  · hole ${g.startHole}` : ''}
                 </Text>
                 {canScore && <Button small title="Score" icon="create-outline" onPress={() => router.push(`/tour/${tour.id}/score?rid=${r.id}&gid=${g.id}`)} />}
               </View>
-              <P>{g.ids.map(name).join(', ')}</P>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                {g.ids.map((pid) => (
+                  <View key={pid} style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: C.soft, borderRadius: R.pill, paddingRight: 10, padding: 2 }}>
+                    <Avatar name={name(pid)} size={22} />
+                    <Text style={{ fontFamily: F.semi, fontSize: 13, color: C.ink }}>{name(pid)}</Text>
+                  </View>
+                ))}
+              </View>
             </Card>
           ))}
           {!r.groups.length && <P sub>Groups and tee times not set yet.</P>}
@@ -229,12 +248,12 @@ export function TeeSheet({ tour, canScore }: { tour: Tour; canScore: boolean }) 
 }
 
 const EVENT_ICONS: Record<TourEvent['kind'], { icon: any; color: string }> = {
-  leader: { icon: 'trophy', color: C.accent },
-  match: { icon: 'flag', color: C.brand },
-  highlight: { icon: 'sparkles', color: C.under },
-  score: { icon: 'create', color: C.sub },
-  roundDone: { icon: 'checkmark-done', color: C.brand },
-  teetime: { icon: 'time', color: C.over },
+  leader: { icon: 'trophy', color: C.champagne },
+  match: { icon: 'flag', color: C.white },
+  highlight: { icon: 'sparkles', color: C.champagne },
+  score: { icon: 'create', color: C.faint },
+  roundDone: { icon: 'checkmark-done', color: C.white },
+  teetime: { icon: 'time', color: C.white },
 };
 
 export function Feed({ events }: { events: TourEvent[] }) {
@@ -246,24 +265,28 @@ export function Feed({ events }: { events: TourEvent[] }) {
         const ic = EVENT_ICONS[e.kind];
         const ago = Math.round((now - e.at) / 60000);
         const when = ago < 1 ? 'now' : ago < 60 ? `${ago}m` : ago < 1440 ? `${Math.round(ago / 60)}h` : fmtDate(new Date(e.at).toISOString().slice(0, 10));
-        return <Row key={e.id} left={<Icon name={ic.icon} color={ic.color} />} title={e.title} subtitle={e.body} right={<Text style={st.small}>{when}</Text>} />;
+        return <Row key={e.id} left={
+              <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: C.ink, alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name={ic.icon} color={ic.color} size={16} />
+              </View>
+            } title={e.title} subtitle={e.body} right={<Text style={st.small}>{when}</Text>} />;
       })}
     </List>
   );
 }
 
 const st = StyleSheet.create({
-  table: { backgroundColor: C.card, borderRadius: 14, overflow: 'hidden', borderWidth: StyleSheet.hairlineWidth, borderColor: C.line },
-  thead: { backgroundColor: C.brand },
-  tr: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: S.md, paddingVertical: 9, gap: 6, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.line },
-  th: { color: '#fff', fontSize: 11, fontWeight: '800', letterSpacing: 0.5 },
-  td: { fontSize: 15, color: C.ink },
+  table: { backgroundColor: C.card, borderRadius: R.lg, overflow: 'hidden', ...shadow },
+  thead: { backgroundColor: C.ink },
+  tr: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: S.md, paddingVertical: 11, gap: 6, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.line },
+  leadRow: { backgroundColor: '#FBF8F1' },
+  leadBar: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, backgroundColor: C.champagne },
+  th: { color: C.white, fontSize: 10, fontFamily: F.bold, letterSpacing: 1.4 },
+  td: { fontSize: 15, color: C.ink, fontFamily: F.medium },
   pos: { width: 34 },
   num: { width: 44, textAlign: 'center', fontVariant: ['tabular-nums'] },
-  total: { fontWeight: '800', fontSize: 16 },
-  small: { fontSize: 11, color: C.sub },
+  total: { fontFamily: F.heavy, fontSize: 17 },
+  small: { fontSize: 11, color: C.sub, fontFamily: F.body },
   dot: { width: 8, height: 8, borderRadius: 4 },
-  cupScore: { fontSize: 48, fontWeight: '900', fontVariant: ['tabular-nums'] },
-  cupTeam: { fontSize: 14, fontWeight: '700', color: C.ink },
-  matchPill: { minWidth: 76, alignItems: 'center', borderRadius: 8, paddingVertical: 4, paddingHorizontal: 6 },
+  matchPill: { minWidth: 76, alignItems: 'center', borderRadius: R.pill, paddingVertical: 5, paddingHorizontal: 8 },
 });

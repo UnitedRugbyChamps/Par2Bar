@@ -8,7 +8,7 @@ import { useTour } from '@/state/session';
 import { COMP_TYPES, newComp } from '@/tour/helpers';
 import { confirm } from '@/ui/confirm';
 import { Button, Card, Chip, Field, H, Icon, List, Loading, P, Row, Screen, Toggle } from '@/ui/kit';
-import { C, S } from '@/ui/theme';
+import { C, F, S } from '@/ui/theme';
 
 export default function GameEditor() {
   const { id, cid } = useLocalSearchParams<{ id: string; cid: string }>();
@@ -110,7 +110,7 @@ function Pairings({ tour, c, patch }: { tour: Tour; c: Comp; patch: (p: Partial<
       {ps.map((p, i) => (
         <Card key={i}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={{ flex: 1, fontWeight: '700' }}>Match {i + 1}</Text>
+            <Text style={{ flex: 1, fontFamily: F.bold }}>Match {i + 1}</Text>
             <Button small kind="ghost" title="" icon="trash-outline" onPress={() => patch({ pairings: ps.filter((_, j) => j !== i) })} />
           </View>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>

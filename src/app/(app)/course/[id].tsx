@@ -6,7 +6,7 @@ import { backend } from '@/backend';
 import type { Course, Tee } from '@/core/types';
 import { useCourse, useMe } from '@/state/session';
 import { Button, Card, Empty, ErrorText, Field, H, Loading, P, Screen } from '@/ui/kit';
-import { C, R } from '@/ui/theme';
+import { C, F, R } from '@/ui/theme';
 
 const blankTee = (from?: Tee): Tee => ({ name: '', rating: null, slope: null, par: from ? [...from.par] : Array(18).fill(4), si: from ? [...from.si] : Array.from({ length: 18 }, (_, i) => i + 1) });
 
@@ -74,7 +74,7 @@ function CourseForm({ initial, isNew }: { initial: Course; isNew?: boolean }) {
 function HoleGrid({ label, values, onChange }: { label: string; values: number[]; onChange: (v: number[]) => void }) {
   return (
     <View style={{ gap: 4 }}>
-      <Text style={{ fontSize: 12, fontWeight: '700', color: C.sub }}>{label.toUpperCase()}</Text>
+      <Text style={{ fontSize: 12, fontFamily: F.bold, color: C.sub }}>{label.toUpperCase()}</Text>
       {[0, 9].map((start) => (
         <View key={start} style={{ flexDirection: 'row', gap: 3 }}>
           {values.slice(start, start + 9).map((v, k) => (
@@ -86,7 +86,7 @@ function HoleGrid({ label, values, onChange }: { label: string; values: number[]
                 maxLength={2}
                 selectTextOnFocus
                 onChangeText={(t) => onChange(values.map((x, j) => (j === start + k ? parseInt(t, 10) || 0 : x)))}
-                style={{ width: '100%', textAlign: 'center', borderWidth: 1, borderColor: C.line, borderRadius: R.sm, paddingVertical: 6, fontSize: 15, fontWeight: '700', color: C.ink, backgroundColor: C.card }}
+                style={{ width: '100%', textAlign: 'center', borderWidth: 1, borderColor: C.line, borderRadius: R.sm, paddingVertical: 6, fontSize: 15, fontFamily: F.bold, color: C.ink, backgroundColor: C.card }}
               />
             </View>
           ))}

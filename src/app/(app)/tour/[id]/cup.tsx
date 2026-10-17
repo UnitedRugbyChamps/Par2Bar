@@ -7,7 +7,7 @@ import type { Cup, CupFormat, Tour } from '@/core/types';
 import { useTour } from '@/state/session';
 import { confirm } from '@/ui/confirm';
 import { Button, Card, Chip, Empty, Field, H, Icon, List, Loading, P, Row, Screen, Toggle } from '@/ui/kit';
-import { C } from '@/ui/theme';
+import { C, F } from '@/ui/theme';
 
 const FORMATS: { f: CupFormat; label: string; size: number }[] = [
   { f: 'fourball', label: 'Fourballs (better ball)', size: 2 },
@@ -78,7 +78,7 @@ function CupForm({ tour }: { tour: Tour }) {
             {s.matches.map((m, mi) => (
               <Card key={mi}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text style={{ flex: 1, fontWeight: '700' }}>Match {mi + 1}</Text>
+                  <Text style={{ flex: 1, fontFamily: F.bold }}>Match {mi + 1}</Text>
                   <Button small kind="ghost" title="" icon="trash-outline" onPress={() => setS({ matches: s.matches.filter((_, i) => i !== mi) })} />
                 </View>
                 {(['a', 'b'] as const).map((side) => {

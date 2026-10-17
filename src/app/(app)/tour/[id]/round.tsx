@@ -10,7 +10,7 @@ import { useTour } from '@/state/session';
 import { autoGroups, blankRound } from '@/tour/helpers';
 import { confirm } from '@/ui/confirm';
 import { Button, Card, Chip, Field, H, Icon, List, Loading, P, Row, Screen } from '@/ui/kit';
-import { C, S } from '@/ui/theme';
+import { C, F, S } from '@/ui/theme';
 
 export default function RoundEditor() {
   const { id, rid } = useLocalSearchParams<{ id: string; rid: string }>();
@@ -51,7 +51,7 @@ function RoundForm({ tour, initial }: { tour: Tour; initial: Round }) {
       <H>Course</H>
       {r.course.name && !picking ? (
         <Card>
-          <Text style={{ fontSize: 17, fontWeight: '700', color: C.ink }}>{r.course.name}</Text>
+          <Text style={{ fontSize: 17, fontFamily: F.bold, color: C.ink }}>{r.course.name}</Text>
           <P sub>
             {r.course.tee} tees · par {r.course.par.reduce((a, b) => a + b, 0)}
             {r.course.rating ? ` · rating ${r.course.rating} / slope ${r.course.slope}` : ' · no rating or slope, handicaps use the index'}
@@ -90,7 +90,7 @@ function RoundForm({ tour, initial }: { tour: Tour; initial: Round }) {
           return (
             <View key={p.id} style={{ flexDirection: 'row', alignItems: 'center', gap: S.sm, paddingHorizontal: S.lg, paddingVertical: 6, borderBottomWidth: 0.5, borderBottomColor: C.line }}>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontWeight: '600', color: C.ink }}>{p.name}</Text>
+                <Text style={{ fontFamily: F.semi, color: C.ink }}>{p.name}</Text>
                 <Text style={{ fontSize: 12, color: C.sub }}>
                   Index {p.hi ?? '–'} → plays off {auto}
                 </Text>
@@ -203,7 +203,7 @@ function Scramble({ tour, r, patch }: { tour: Tour; r: Round; patch: (p: Partial
       {teams.map((ids, ti) => (
         <Card key={ti}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={{ flex: 1, fontWeight: '700' }}>Team {ti + 1}</Text>
+            <Text style={{ flex: 1, fontFamily: F.bold }}>Team {ti + 1}</Text>
             <Button small kind="ghost" title="" icon="trash-outline" onPress={() => patch({ scramble: teams.filter((_, i) => i !== ti) })} />
           </View>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>

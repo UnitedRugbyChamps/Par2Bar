@@ -4,13 +4,54 @@ service cloud.firestore {
     function signedIn() { return request.auth != null; }
     function me() { return request.auth.uid; }
     function tour(id) { return get(/databases/$(database)/documents/tours/$(id)).data; }
-    function member(id) { return signedIn() && me() in tour(id).memberUids; }
+    function clubMember(t) { return t.get('clubId', null) != null && me() in get(/databases/$(database)/documents/clubs/$(t.clubId)).data.memberUids; }
+    // tour members, and members of the club running it, can follow the tour
+    function member(id) { return signedIn() && (me() in tour(id).memberUids || clubMember(tour(id))); }
     function admin(t) { return t.ownerUid == me() || me() in t.adminUids; }
+    function clubAdmin(cid) { let c = get(/databases/$(database)/documents/clubs/$(cid)).data; return c.ownerUid == me() || me() in c.adminUids; }
     function onlyChanges(keys) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys); }
 
     match /users/{uid} {
       allow read: if signedIn();
       allow write: if signedIn() && me() == uid;
+    }
+    match /follows/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.from == me() && id == me() + '_' + request.resource.data.to;
+      allow delete: if signedIn() && resource.data.from == me();
+    }
+    match /posts/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.uid == me() && request.resource.data.kind == 'photo';
+      allow delete: if signedIn() && resource.data.uid == me();
+      // owners edit captions; anyone can like or unlike
+      allow update: if signedIn() && (
+        (resource.data.uid == me() && onlyChanges(['caption']))
+        || (onlyChanges(['likes']) && request.resource.data.likes.toSet().difference(resource.data.likes.toSet()).union(resource.data.likes.toSet().difference(request.resource.data.likes.toSet())).hasOnly([me()]))
+      );
+    }
+    match /stories/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.uid == me();
+      allow delete: if signedIn() && resource.data.uid == me();
+    }
+    // written only by Cloud Functions
+    match /rounds/{id} {
+      allow read: if signedIn();
+    }
+    match /clubCodes/{code} {
+      allow get: if signedIn();
+      allow create: if signedIn() && get(/databases/$(database)/documents/clubs/$(request.resource.data.clubId)).data.ownerUid == me();
+    }
+    match /clubs/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.ownerUid == me() && request.resource.data.memberUids == [me()];
+      allow delete: if signedIn() && resource.data.ownerUid == me();
+      allow update: if signedIn() && (
+        resource.data.ownerUid == me() || me() in resource.data.adminUids
+        || (onlyChanges(['memberUids']) && request.resource.data.memberUids.toSet().difference(resource.data.memberUids.toSet()).hasOnly([me()]))
+        || (onlyChanges(['memberUids']) && resource.data.memberUids.toSet().difference(request.resource.data.memberUids.toSet()).hasOnly([me()]))
+      );
     }
     // push tokens are only read by Cloud Functions
     match /pushTokens/{uid} {
@@ -27,11 +68,12 @@ service cloud.firestore {
       allow update: if signedIn() && (resource.data.createdBy == me() || resource.data.source == 'golfcourseapi');
     }
     match /tours/{id} {
-      allow read: if signedIn() && me() in resource.data.memberUids;
-      allow create: if signedIn() && request.resource.data.ownerUid == me() && request.resource.data.memberUids == [me()];
+      allow read: if signedIn() && (me() in resource.data.memberUids || clubMember(resource.data));
+      allow create: if signedIn() && request.resource.data.ownerUid == me() && me() in request.resource.data.memberUids
+        && (request.resource.data.get('clubId', null) == null || clubAdmin(request.resource.data.clubId));
       allow delete: if signedIn() && resource.data.ownerUid == me();
       allow update: if signedIn() && (
-        admin(resource.data)
+        (admin(resource.data) && (request.resource.data.get('clubId', null) in [null, resource.data.get('clubId', null)] || clubAdmin(request.resource.data.clubId)))
         // anyone with the join code can add themselves; members can leave
         || (onlyChanges(['memberUids']) && request.resource.data.memberUids.toSet().difference(resource.data.memberUids.toSet()).hasOnly([me()]))
         || (onlyChanges(['memberUids']) && me() in resource.data.memberUids && resource.data.memberUids.toSet().difference(request.resource.data.memberUids.toSet()).hasOnly([me()]))

@@ -7,11 +7,14 @@ import { logger } from 'firebase-functions';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 
+import { model } from '../../src/core/engine.ts';
+import { finishedRecords, handicapIndex } from '../../src/core/handicap.ts';
 import { diffEvents, recipients, teeTimesDue, type NewEvent } from '../../src/core/notify.ts';
-import { defaultPrefs, type Score, type ScoreMap, type Tour, type UserProfile } from '../../src/core/types.ts';
+import { defaultPrefs, type RoundRecord, type Score, type ScoreMap, type Tour, type UserProfile } from '../../src/core/types.ts';
 
 initializeApp();
 const db = getFirestore();
+db.settings({ ignoreUndefinedProperties: true });
 const expo = new Expo({ accessToken: process.env.EXPO_ACCESS_TOKEN });
 
 async function loadUsers(uids: string[]): Promise<UserProfile[]> {
@@ -82,7 +85,25 @@ export const onScoreWritten = onDocumentWritten({ document: 'tours/{tourId}/scor
   else delete prev[key];
   now[key] = after;
   await publish(tour, diffEvents(tour, prev, now, { ...after, tourId }, after.updatedBy));
+  await recordRounds(tour, now, before, after);
 });
+
+/** Finished cards become round records and profile posts, and update the player's handicap index. */
+async function recordRounds(tour: Tour, scores: ScoreMap, before: Score | undefined, after: Score) {
+  const M = model(tour, scores);
+  for (const rec of finishedRecords(tour, before, after, M.chOf)) {
+    await db.doc(`rounds/${rec.id}`).set(rec);
+    const post = db.doc(`posts/round-${rec.id}`);
+    const old = await post.get();
+    await post.set({ uid: rec.uid, kind: 'round', images: [], caption: old.data()?.caption ?? '', at: old.data()?.at ?? Date.now(), likes: old.data()?.likes ?? [], round: rec });
+    const user = await db.doc(`users/${rec.uid}`).get();
+    if (user.exists && user.data()?.hiAuto !== false) {
+      const all = await db.collection('rounds').where('uid', '==', rec.uid).get();
+      const hi = handicapIndex(all.docs.map((d) => d.data() as RoundRecord));
+      if (hi != null) await user.ref.update({ hi });
+    }
+  }
+}
 
 export const teeTimeReminders = onSchedule({ schedule: 'every 5 minutes', region: 'europe-west1' }, async () => {
   const to = Date.now();

@@ -14,6 +14,18 @@ notifications as scores come in. Built with Expo (React Native) and Firebase.
 - **Handicaps**: WHS course handicap = Index × Slope ÷ 113 + (Course Rating − Par),
   per round and tee, with per-round overrides and allowances per game. Team
   handicaps for foursomes (50%) and scramble (35/15, 30/20/10, 25/20/15/10).
+  Each player's index can be worked out automatically from finished rounds
+  (adjusted gross capped at net double bogey, differentials, best N of the
+  last 20).
+- **Profiles**: profile picture, cover photo, bio, home club, affiliated or
+  not, handicap, followers and following. Tabs for photo posts, round activity
+  (every finished round posts itself) and lifetime stats: best and worst
+  round, differentials, scoring mix and averages.
+- **Feed and stories**: photo posts with likes, 24-hour stories, and the
+  rounds of everyone you follow.
+- **Clubs**: a society that runs a tour every year, with a join code, its
+  tours by year, an honours board (champion and cup winner each year),
+  members and all-time records.
 - **Courses**: add a course from its scorecard (tees with rating, slope, par and
   stroke index per hole). Worldwide course search turns on with a
   GolfCourseAPI key (see below).
@@ -25,7 +37,7 @@ notifications as scores come in. Built with Expo (React Native) and Firebase.
 - **Rounds and tee times**: groups made automatically or by hand, 1st or 10th
   tee starts.
 - **Scoring**: hole-by-hole entry for a whole group, shots received shown per
-  player, running points; scorecards with birdie/bogey colouring.
+  player, running points; scorecards with circles for birdies and squares for bogeys.
 - **Feed and notifications**: birdies and better, new leaders, cup match
   swings and results, round finished, every score from players you follow or
   your own group, and tee time reminders 30 minutes before you tee off. Each
@@ -46,13 +58,14 @@ are saved on the device, and notifications are shown locally. On the Tours tab
 
 ## Connect Firebase (shared data and push)
 
-1. Create a Firebase project; enable Authentication → Email/Password and Firestore.
+1. Create a Firebase project; enable Authentication → Email/Password, Firestore
+   and Storage (profile pictures, covers, posts and stories).
 2. Add a Web app in the Firebase console and copy its config into `.env`
    (see `.env.example`). The app switches to Firebase automatically.
 3. Deploy the rules and functions (Blaze plan needed for functions):
    ```bash
    npm --prefix functions install
-   npx firebase-tools deploy --only firestore,functions
+   npx firebase-tools deploy --only firestore,storage,functions
    ```
 4. Push notifications go through Expo's push service. Run `npx eas-cli init`
    so the app has an EAS project id, then build a development or store build

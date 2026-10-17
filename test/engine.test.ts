@@ -129,3 +129,35 @@ test('tee time reminders use the tour time zone', async () => {
   assert.equal(due.length, 1);
   assert.match(due[0].body, /30 minutes/);
 });
+
+test('WHS differentials and handicap index', async () => {
+  const H = await import('../src/core/handicap.ts');
+  const par = Array(18).fill(4);
+  const si = Array.from({ length: 18 }, (_, i) => i + 1);
+  // a 9 on a par 4 counts as net double bogey: 6 for a scratch player, 7 with a shot
+  assert.equal(H.adjustedGross([9, ...Array(17).fill(4)], par, si, 0), 74);
+  assert.equal(H.adjustedGross([9, ...Array(17).fill(4)], par, si, 1), 75);
+  assert.equal(H.differential(85, 71.2, 128), 12.2);
+  const recs = (ds: number[]) => ds.map((d, i) => ({ differential: d, date: `2026-01-${String(i + 1).padStart(2, '0')}`, at: i }));
+  assert.equal(H.handicapIndex(recs([20, 18])), null);
+  assert.equal(H.handicapIndex(recs([20, 18, 22])), 16); // lowest 1 minus 2
+  assert.equal(H.handicapIndex(recs([10, 12, 14, 16, 18, 20])), 10); // avg lowest 2 minus 1
+  const twenty = recs(Array.from({ length: 22 }, (_, i) => i + 1)); // newest 20 are 3..22
+  assert.equal(H.handicapIndex(twenty), 6.5); // avg of 3..10
+});
+
+test('a finished card makes a round record with stats', async () => {
+  const H = await import('../src/core/handicap.ts');
+  const t = { ...tour('sample-2024') };
+  t.players = t.players.map((p) => (p.id === 'p7' ? { ...p, uid: 'me' } : p));
+  const M = E.model(t, data.scores);
+  const s = data.scores[`${t.id}~r1~p7`];
+  const recs = H.finishedRecords(t, undefined, s, M.chOf);
+  assert.equal(recs.length, 1);
+  assert.equal(recs[0].gross, s.strokes.reduce((a: number, b) => a + (b ?? 0), 0));
+  assert.equal(recs[0].estimated, true);
+  assert.equal(H.finishedRecords(t, s, s, M.chOf).length, 0);
+  const st = H.lifetimeStats(recs);
+  assert.equal(st.rounds, 1);
+  assert.equal(st.holes, 18);
+});

@@ -1,15 +1,15 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import * as E from '@/core/engine';
 import { mainComp } from '@/core/notify';
+import { ScoreCard } from '@/social/ScoreCard';
 import { useTour } from '@/state/session';
-import { Chip, Empty, Loading, P, Screen, Title } from '@/ui/kit';
-import { C, S } from '@/ui/theme';
-import { scoreColor } from '@/ui/score';
+import { Avatar, Card, Chip, Display, Empty, Label, Loading, Num, Screen } from '@/ui/kit';
+import { C, F, S } from '@/ui/theme';
 
-export default function ScoreCard() {
+export default function TourScoreCard() {
   const { id, rid, uid } = useLocalSearchParams<{ id: string; rid: string; uid: string }>();
   const { tour, scores } = useTour(id);
   const [roundId, setRoundId] = useState(rid);
@@ -25,22 +25,31 @@ export default function ScoreCard() {
   const st = M.strokes(round, unitId);
   const c = round.course;
   const pts = st.map((g, i) => E.points(g, c.par[i], c.si[i], line.h));
-  const part = (from: number, to: number, a: (number | null)[]) => {
-    const v = a.slice(from, to).filter((x): x is number => x != null);
-    return v.length ? v.reduce((x, y) => x + y, 0) : '';
-  };
-  const cols = [...Array(9).keys(), 'OUT', ...Array.from({ length: 9 }, (_, i) => i + 9), 'IN', 'TOT'] as (number | string)[];
-  const cell = (row: (number | null)[], k: number | string) =>
-    k === 'OUT' ? part(0, 9, row) : k === 'IN' ? part(9, 18, row) : k === 'TOT' ? part(0, 18, row) : (row[k as number] ?? '');
 
   return (
     <Screen>
-      <Stack.Screen options={{ title: 'Scorecard' }} />
-      <Title>{unit?.name ?? 'Card'}</Title>
-      <P sub>
-        {round.name} · {c.name}
-        {c.tee ? ` · ${c.tee}` : ''} · plays off {line.h}
-      </P>
+      <Stack.Screen options={{ title: round.name }} />
+      <Card dark style={{ gap: S.md, padding: S.xl }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: S.md }}>
+          <Avatar name={unit?.name ?? '?'} size={44} color="#2A2A28" />
+          <View style={{ flex: 1 }}>
+            <Text style={{ color: C.white, fontFamily: F.heavy, fontSize: 20 }}>{unit?.name ?? 'Card'}</Text>
+            <Text style={{ color: C.faint, fontFamily: F.medium, fontSize: 12 }}>Plays off {line.h}</Text>
+          </View>
+        </View>
+        <Display size={18} color={C.white}>
+          {c.name}
+        </Display>
+        <Text style={{ color: C.faint, fontFamily: F.medium, fontSize: 12, marginTop: -6 }}>
+          {[c.tee && `${c.tee} tees`, c.rating && `${c.rating} / ${c.slope}`].filter(Boolean).join(' · ')}
+        </Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <Big v={line.n ? String(line.gross) : '–'} l="Gross" />
+          <Big v={line.n ? E.fmtRel(line.toPar) : '–'} l="Net to par" accent />
+          <Big v={line.n ? String(line.pts) : '–'} l="Points" />
+          <Big v={line.done ? 'F' : String(line.n)} l="Thru" />
+        </View>
+      </Card>
       {tour.rounds.length > 1 && (
         <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
           {tour.rounds.map((r) => (
@@ -48,60 +57,22 @@ export default function ScoreCard() {
           ))}
         </View>
       )}
-      <ScrollView horizontal style={sty.wrap}>
-        <View>
-          {[
-            ['HOLE', cols.map((k) => (typeof k === 'number' ? k + 1 : k))],
-            ['PAR', cols.map((k) => cell(c.par, k))],
-            ['SI', cols.map((k) => (typeof k === 'number' ? c.si[k] : ''))],
-          ].map(([label, vals]) => (
-            <View key={label as string} style={[sty.tr, label === 'HOLE' && { backgroundColor: C.brand }]}>
-              <Text style={[sty.label, label === 'HOLE' && { color: '#fff' }]}>{label as string}</Text>
-              {(vals as (string | number)[]).map((v, i) => (
-                <Text key={i} style={[sty.td, typeof cols[i] === 'string' && sty.sum, label === 'HOLE' && { color: '#fff', fontWeight: '800' }]}>
-                  {v}
-                </Text>
-              ))}
-            </View>
-          ))}
-          <View style={sty.tr}>
-            <Text style={sty.label}>SCORE</Text>
-            {cols.map((k, i) => {
-              if (typeof k === 'string') return <Text key={i} style={[sty.td, sty.sum]}>{cell(st, k)}</Text>;
-              const col = scoreColor(st[k], c.par[k]);
-              return (
-                <View key={i} style={sty.tdBox}>
-                  <View style={[sty.score, { backgroundColor: st[k] ? col.bg : 'transparent' }]}>
-                    <Text style={{ color: col.fg, fontWeight: '800' }}>{st[k] ?? ''}</Text>
-                  </View>
-                </View>
-              );
-            })}
-          </View>
-          <View style={sty.tr}>
-            <Text style={sty.label}>PTS</Text>
-            {cols.map((k, i) => (
-              <Text key={i} style={[sty.td, typeof k === 'string' && sty.sum, { color: C.brand }]}>
-                {cell(pts, k)}
-              </Text>
-            ))}
-          </View>
-        </View>
-      </ScrollView>
-      <P sub style={{ fontSize: 13 }}>
-        {line.n ? `${line.gross} gross · ${E.fmtRel(line.toPar)} net · ${line.pts} Stableford points` : 'No scores yet'}
-      </P>
+      <Card>
+        <ScoreCard par={c.par} si={c.si} strokes={st} pts={pts} />
+      </Card>
     </Screen>
   );
 }
 
-const W = 34;
-const sty = StyleSheet.create({
-  wrap: { backgroundColor: C.card, borderRadius: 14, borderWidth: StyleSheet.hairlineWidth, borderColor: C.line },
-  tr: { flexDirection: 'row', alignItems: 'center', borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.line, minHeight: 36 },
-  label: { width: 56, paddingLeft: S.sm, fontSize: 11, fontWeight: '800', color: C.sub },
-  td: { width: W, textAlign: 'center', fontSize: 14, color: C.ink, fontVariant: ['tabular-nums'] },
-  tdBox: { width: W, alignItems: 'center' },
-  sum: { width: W + 8, fontWeight: '800', backgroundColor: C.bg, paddingVertical: 9 },
-  score: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-});
+function Big({ v, l, accent }: { v: string; l: string; accent?: boolean }) {
+  return (
+    <View style={{ gap: 2 }}>
+      <Num size={28} color={accent ? C.champagne : C.white}>
+        {v}
+      </Num>
+      <Label color={C.faint} style={{ fontSize: 9 }}>
+        {l}
+      </Label>
+    </View>
+  );
+}

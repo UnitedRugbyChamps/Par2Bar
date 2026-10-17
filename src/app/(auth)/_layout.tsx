@@ -8,5 +8,5 @@ export default function AuthLayout() {
   const { user, loading } = useSession();
   if (loading) return <Loading />;
   if (user) return <Redirect href="/" />;
-  return <Stack screenOptions={{ headerStyle: { backgroundColor: C.brand }, headerTintColor: '#fff', headerTitle: '', headerShadowVisible: false, contentStyle: { backgroundColor: C.bg } }} />;
+  return <Stack screenOptions={{ headerStyle: { backgroundColor: C.bg }, headerTintColor: C.ink, headerTitle: '', headerBackButtonDisplayMode: 'minimal', headerShadowVisible: false, contentStyle: { backgroundColor: C.bg } }} />;
 }

@@ -1,70 +1,69 @@
-import { router, Stack } from 'expo-router';
-import { useState } from 'react';
-import { Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { useMemo } from 'react';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 
-import { backend } from '@/backend';
-import { useMe, useMyTours } from '@/state/session';
-import { fmtRange, isLive, loadSample } from '@/tour/helpers';
-import { Button, Card, Empty, Icon, Loading, P, Screen } from '@/ui/kit';
-import { C, S } from '@/ui/theme';
+import { useFollows, useMe, useMyTours, usePosts, useStories } from '@/state/session';
+import { PostCard } from '@/social/PostCard';
+import { StoriesBar } from '@/social/StoriesBar';
+import { useProfiles } from '@/social/util';
+import { fmtRange, isLive } from '@/tour/helpers';
+import { Button, Display, Empty, IconButton, Label, Loading, P } from '@/ui/kit';
+import { TopBar } from '@/ui/TopBar';
+import { C, F, R, S } from '@/ui/theme';
 
-export default function Tours() {
+export default function Home() {
   const me = useMe();
+  const follows = useFollows(me.uid);
+  const circle = useMemo(() => [me.uid, ...follows.following].sort(), [me.uid, follows.following]);
+  const posts = usePosts(circle);
+  const stories = useStories(circle);
   const tours = useMyTours();
-  const [busy, setBusy] = useState(false);
-  if (!tours) return <Loading />;
+  const profiles = useProfiles([...circle, ...stories.map((s) => s.uid)]);
+  const live = (tours ?? []).filter(isLive);
   return (
-    <Screen>
-      <Stack.Screen options={{ title: 'Tours' }} />
-      <View style={{ flexDirection: 'row', gap: S.sm }}>
-        <View style={{ flex: 1 }}>
-          <Button title="New tour" icon="add" onPress={() => router.push('/tour/new')} />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Button title="Join with code" icon="enter-outline" kind="secondary" onPress={() => router.push('/tour/join')} />
-        </View>
-      </View>
-      {tours.length === 0 && (
-        <Empty icon="golf-outline" title="No tours yet">
-          <P sub center>
-            Create a tour and invite your group with its code, or join one a friend set up.
-          </P>
-          {backend.kind === 'offline' && (
-            <Button
-              title="Load two sample tours"
-              kind="ghost"
-              busy={busy}
-              onPress={async () => {
-                setBusy(true);
-                await loadSample(me);
-                setBusy(false);
-              }}
-            />
+    <View style={{ flex: 1, backgroundColor: C.bg }}>
+      <TopBar
+        title="Tour Card"
+        right={
+          <>
+            <IconButton icon="camera-outline" onPress={() => router.push('/post/new')} />
+            <IconButton icon="people-outline" onPress={() => router.push('/explore')} />
+          </>
+        }
+      />
+      <ScrollView contentContainerStyle={{ paddingBottom: 60, gap: S.lg }}>
+        <StoriesBar me={me} stories={stories} profiles={{ ...profiles, [me.uid]: me }} />
+        {live.length > 0 && (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: S.md, paddingHorizontal: S.lg }}>
+            {live.map((t) => (
+              <Pressable key={t.id} onPress={() => router.push(`/tour/${t.id}`)} style={{ width: 260, backgroundColor: C.ink, borderRadius: R.lg, padding: S.lg, gap: 6 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: C.live }} />
+                  <Label color={C.white}>Live now</Label>
+                </View>
+                <Display size={18} color={C.white}>
+                  {t.name}
+                </Display>
+                <Text style={{ color: C.faint, fontFamily: F.medium, fontSize: 12 }}>{fmtRange(t.startDate, t.endDate)}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        )}
+        <View style={{ paddingHorizontal: S.lg, gap: S.lg }}>
+          {posts === null ? (
+            <Loading />
+          ) : posts.length ? (
+            posts.map((p) => <PostCard key={p.id} post={p} author={p.uid === me.uid ? me : profiles[p.uid]} me={me.uid} />)
+          ) : (
+            <Empty icon="people-outline" title="Your feed is quiet">
+              <P sub center>
+                Follow the golfers you play with. Their rounds, photos and stories show up here, and your finished rounds post automatically.
+              </P>
+              <Button title="Find golfers" onPress={() => router.push('/explore')} />
+            </Empty>
           )}
-        </Empty>
-      )}
-      {tours.map((t) => (
-        <Card key={t.id} onPress={() => router.push(`/tour/${t.id}`)}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: S.sm }}>
-            <Text style={{ fontSize: 18, fontWeight: '800', color: C.ink, flex: 1 }} numberOfLines={1}>
-              {t.name}
-            </Text>
-            {isLive(t) && (
-              <View style={{ backgroundColor: C.under, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 2 }}>
-                <Text style={{ color: '#fff', fontWeight: '800', fontSize: 12 }}>LIVE</Text>
-              </View>
-            )}
-            <Icon name="chevron-forward" color={C.faint} size={18} />
-          </View>
-          <P sub>
-            {[fmtRange(t.startDate, t.endDate), t.location].filter(Boolean).join(' · ')}
-          </P>
-          <P sub>
-            {t.players.length} players · {t.rounds.length} {t.rounds.length === 1 ? 'round' : 'rounds'}
-            {t.cup ? ` · ${t.cup.name}` : ''}
-          </P>
-        </Card>
-      ))}
-    </Screen>
+        </View>
+      </ScrollView>
+    </View>
   );
 }

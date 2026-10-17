@@ -120,6 +120,8 @@ export interface Cup {
 export interface Tour {
   id: string;
   name: string;
+  /** The club or society running it, if any */
+  clubId?: string | null;
   location?: string;
   /** IANA zone the tee times are in, e.g. Africa/Johannesburg */
   timezone?: string;
@@ -178,10 +180,88 @@ export interface UserProfile {
   uid: string;
   name: string;
   email: string;
+  /** Handicap index. Calculated from scored rounds when `hiAuto` is on. */
   hi: number | null;
+  hiAuto?: boolean;
   homeClub?: string;
+  /** Affiliated to a golf union / federation with an official handicap */
+  affiliated?: boolean;
+  bio?: string;
+  avatar?: string;
+  cover?: string;
   notify: NotifyPrefs;
   pushTokens?: string[];
+  createdAt?: number;
+}
+
+/** A society or club that runs tours year after year, e.g. a group of friends' annual tour. */
+export interface Club {
+  id: string;
+  name: string;
+  about?: string;
+  location?: string;
+  founded?: string;
+  logo?: string;
+  cover?: string;
+  ownerUid: string;
+  adminUids: string[];
+  memberUids: string[];
+  joinCode: string;
+  createdAt?: number;
+}
+
+/** One finished 18-hole round for a player with an account. Drives the
+ *  handicap index, profile stats and the automatic round post. */
+export interface RoundRecord {
+  id: string; // tourId~rid~playerId
+  uid: string;
+  playerId: string;
+  tourId: string;
+  tourName: string;
+  clubId?: string;
+  rid: string;
+  roundName: string;
+  date: string;
+  course: string;
+  tee: string;
+  rating: number | null;
+  slope: number | null;
+  par: number[];
+  si: number[];
+  strokes: number[];
+  putts?: (number | null)[];
+  courseHcp: number;
+  gross: number;
+  adjGross: number;
+  pts: number;
+  /** WHS score differential; `estimated` when the tee has no rating or slope */
+  differential: number;
+  estimated: boolean;
+  at: number;
+}
+
+export interface Post {
+  id: string;
+  uid: string;
+  kind: 'photo' | 'round';
+  images: string[];
+  caption: string;
+  at: number;
+  likes: string[];
+  round?: RoundRecord;
+}
+
+export interface Story {
+  id: string;
+  uid: string;
+  image?: string;
+  text?: string;
+  at: number;
+}
+
+export interface Follows {
+  followers: string[];
+  following: string[];
 }
 
 export type EventKind = 'leader' | 'match' | 'highlight' | 'score' | 'teetime' | 'roundDone';
