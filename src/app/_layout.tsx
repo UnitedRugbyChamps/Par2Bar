@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 
 import { onNotificationTap } from '@/notify/push';
 import { SessionProvider, useSession } from '@/state/session';
+import { ConfirmHost } from '@/ui/confirm';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -22,6 +23,7 @@ export default function RootLayout() {
     <SessionProvider>
       <StatusBar style="light" />
       <Root />
+      <ConfirmHost />
     </SessionProvider>
   );
 }

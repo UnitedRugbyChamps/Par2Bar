@@ -1,11 +1,10 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Share } from 'react-native';
 
 import { backend } from '@/backend';
 import type { Tour, UserProfile } from '@/core/types';
 import { isAdmin, useMe, useTour } from '@/state/session';
-import { confirm } from '@/ui/confirm';
+import { confirm, shareText } from '@/ui/confirm';
 import { Button, Field, H, List, Loading, P, Row, Screen, Toggle } from '@/ui/kit';
 
 export default function TourSettings() {
@@ -37,7 +36,7 @@ function SettingsForm({ tour }: { tour: Tour }) {
 
       <H>Invite</H>
       <List>
-        <Row title={`Code ${tour.joinCode}`} subtitle="Anyone with the code can join and follow the tour" right="Share" onPress={() => Share.share({ message: `Join "${tour.name}" on Tour Card with code ${tour.joinCode}` })} />
+        <Row title={`Code ${tour.joinCode}`} subtitle="Anyone with the code can join and follow the tour" right="Share" onPress={() => shareText(`Join "${tour.name}" on Tour Card with code ${tour.joinCode}`)} />
       </List>
 
       <H>Members</H>

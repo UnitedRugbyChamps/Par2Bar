@@ -1,6 +1,6 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, Share, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 import { backend } from '@/backend';
 import * as E from '@/core/engine';
@@ -8,6 +8,7 @@ import { mainComp } from '@/core/notify';
 import { isAdmin, useEvents, useMe, useTour } from '@/state/session';
 import { fmtRange } from '@/tour/helpers';
 import { CompPicker, CupView, Feed, Standings, TeeSheet, teamOf } from '@/tour/views';
+import { shareText } from '@/ui/confirm';
 import { Avatar, Button, Empty, Icon, List, Loading, P, Row, Screen, Segmented } from '@/ui/kit';
 import { C, S } from '@/ui/theme';
 
@@ -61,7 +62,7 @@ export default function TourHub() {
       <View style={{ gap: 4 }}>
         <Text style={{ fontSize: 24, fontWeight: '800', color: C.ink }}>{tour.name}</Text>
         <P sub>{[fmtRange(tour.startDate, tour.endDate), tour.location].filter(Boolean).join(' · ')}</P>
-        <Pressable onPress={() => Share.share({ message: `Join "${tour.name}" on Tour Card with code ${tour.joinCode}` })} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+        <Pressable onPress={() => shareText(`Join "${tour.name}" on Tour Card with code ${tour.joinCode}`)} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
           <Icon name="share-social-outline" size={16} color={C.brand} />
           <Text style={{ color: C.brand, fontWeight: '700' }}>Invite code {tour.joinCode}</Text>
         </Pressable>
