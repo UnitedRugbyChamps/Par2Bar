@@ -124,6 +124,8 @@ export interface RoundLine {
   rel: number | null;
   net: number | null;
   toPar: number | null;
+  /** par/bogey: holes won minus holes lost against par, net */
+  vsPar: number;
   h: number;
   skip?: boolean;
 }
@@ -140,7 +142,8 @@ export function roundLine(M: Model, r: Round, uid: string, comp?: Partial<Comp>)
     pts = 0,
     rel = 0,
     netTot = 0,
-    parPlayed = 0;
+    parPlayed = 0,
+    vsPar = 0;
   st.forEach((g, i) => {
     if (!g) return;
     n++;
@@ -149,7 +152,9 @@ export function roundLine(M: Model, r: Round, uid: string, comp?: Partial<Comp>)
     const p = points(g, c.par[i], c.si[i], net ? h : 0) ?? 0;
     pts += p;
     rel += 2 - p;
-    netTot += g - (net ? shots(h, c.si[i]) : 0);
+    const ng = g - (net ? shots(h, c.si[i]) : 0);
+    netTot += ng;
+    vsPar += Math.sign(c.par[i] - ng);
   });
   return {
     n,
@@ -159,6 +164,7 @@ export function roundLine(M: Model, r: Round, uid: string, comp?: Partial<Comp>)
     rel: n ? rel : null,
     net: n ? netTot : null,
     toPar: n ? netTot - parPlayed : null,
+    vsPar,
     h,
   };
 }
@@ -202,7 +208,7 @@ export function leaderboard(M: Model, comp: Comp): { rows: BoardRow[]; rounds: R
 
   const rows: BoardRow[] = units.map((uid) => {
     const per: RoundLine[] = rs.map((r) => {
-      const blank: RoundLine = { n: 0, done: false, gross: null, pts: 0, rel: null, net: null, toPar: null, h: 0, skip: true };
+      const blank: RoundLine = { n: 0, done: false, gross: null, pts: 0, rel: null, net: null, toPar: null, vsPar: 0, h: 0, skip: true };
       if (kind !== 'scramble' && M.inTeamBall(r, uid)) return blank;
       if (kind === 'scramble' && !(M.teamUnits[r.id] || []).some((u) => u.id === uid)) return blank;
       return roundLine(M, r, uid, comp);
@@ -215,6 +221,12 @@ export function leaderboard(M: Model, comp: Comp): { rows: BoardRow[]; rounds: R
         const pts = sum(played.map((x) => x.pts));
         total = comp.display === 'vs36' ? sum(played.map((x) => x.rel ?? 0)) : pts;
         sortKey = comp.display === 'vs36' ? total : -pts;
+      } else if (kind === 'bogey') {
+        total = sum(played.map((x) => x.vsPar));
+        sortKey = -total;
+      } else if (kind === 'eclectic') {
+        total = eclecticToPar(M, rs, uid, comp);
+        sortKey = total;
       } else {
         total = sum(played.map((x) => x.toPar ?? 0));
         sortKey = total;
@@ -241,6 +253,22 @@ export function leaderboard(M: Model, comp: Comp): { rows: BoardRow[]; rounds: R
     if (r.pos && cnt[r.pos] > 1) r.tied = true;
   });
   return { rows, rounds: rs };
+}
+
+/** Best score on each hole across the rounds, against par (net unless gross). */
+export function eclecticToPar(M: Model, rs: Round[], uid: string, comp: Pick<Comp, 'basis' | 'allowance'>): number | null {
+  const best: (number | null)[] = Array(18).fill(null);
+  rs.forEach((r) => {
+    if (M.inTeamBall(r, uid)) return;
+    const h = Math.round(M.hcpOf(r, uid) * ((comp.allowance ?? 100) / 100));
+    M.strokes(r, uid).forEach((g, i) => {
+      if (!g) return;
+      const rel = g - (comp.basis !== 'gross' ? shots(h, r.course.si[i]) : 0) - r.course.par[i];
+      if (best[i] == null || rel < best[i]!) best[i] = rel;
+    });
+  });
+  const got = best.filter((x): x is number => x != null);
+  return got.length ? sum(got) : null;
 }
 
 export interface SkinHole {

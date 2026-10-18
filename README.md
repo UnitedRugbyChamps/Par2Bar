@@ -21,9 +21,23 @@ notifications as scores come in. Built with Expo (React Native) and Firebase.
   not, handicap, followers and following. Tabs for photo posts, round activity
   (every finished round posts itself) and lifetime stats: best and worst
   round, differentials, scoring mix and averages.
+- **Hole stats** (optional while scoring): putts, tee shot left / fairway /
+  right / short, sand shots, water, out of bounds, lost balls and other
+  penalties. Scorecards show them; profiles and rounds show fairways, greens in
+  regulation, putts and penalties.
+- **Tour report**: honours and a penalties sheet (most birdies, birdie and
+  bogey streaks, quadruple bogeys, three-putts, lost balls, missed the cut and
+  more), plus sortable stats per player, four-ball, team and the whole tour,
+  for one round or all of them. Shareable as text.
+- **Cut**: a cut line (top N or top N% and ties) drawn on the final round's
+  leaderboard of the headline competition.
 - **Feed and stories**: photo posts with likes, 24-hour stories, and the
   rounds of everyone you follow.
-- **Clubs**: a society that runs a tour every year, with a join code, its
+- **Formats**: pick from a list (Stableford, medal, par/bogey, eclectic,
+  skins, match play, Nassau, better ball, low/high, foursomes, Ryder Cup,
+  scramble, Ambrose; more listed as coming soon). Clubs choose theirs and new
+  tours start with them.
+- **Clubs**: a society that runs a tour every year, with sponsors, a join code, its
   tours by year, an honours board (champion and cup winner each year),
   members and all-time records.
 - **Courses**: add a course from its scorecard (tees with rating, slope, par and
@@ -65,8 +79,10 @@ are saved on the device, and notifications are shown locally. On the Tours tab
 3. Deploy the rules and functions (Blaze plan needed for functions):
    ```bash
    npm --prefix functions install
-   npx firebase-tools deploy --only firestore,storage,functions
+   npx firebase-tools deploy --only firestore,storage,functions,hosting
    ```
+   Hosting serves the web app and `/p/<post>` share pages, which give shared
+   posts a preview card in WhatsApp; set `EXPO_PUBLIC_SHARE_URL` to the site.
 4. Push notifications go through Expo's push service. Run `npx eas-cli init`
    so the app has an EAS project id, then build a development or store build
    with `npx eas-cli build`. Optionally set `EXPO_ACCESS_TOKEN` for the functions.

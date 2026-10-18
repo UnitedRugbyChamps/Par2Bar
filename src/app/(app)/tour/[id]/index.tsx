@@ -10,12 +10,13 @@ import { fmtTotal } from '@/club/honours';
 import { CoverArt } from '@/social/ProfileView';
 import { isAdmin, useClub, useEvents, useMe, useTour } from '@/state/session';
 import { fmtRange } from '@/tour/helpers';
+import { TourReport } from '@/tour/Report';
 import { CompPicker, CupView, Feed, Standings, TeeSheet, teamOf } from '@/tour/views';
 import { shareText } from '@/ui/confirm';
 import { Avatar, Button, Display, Empty, Icon, IconButton, Label, List, Loading, Num, P, Row, Screen, Segmented } from '@/ui/kit';
 import { C, F, R, S } from '@/ui/theme';
 
-type Tab = 'board' | 'cup' | 'tee' | 'feed' | 'players';
+type Tab = 'board' | 'cup' | 'report' | 'tee' | 'feed' | 'players';
 
 export default function TourHub() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -45,6 +46,7 @@ export default function TourHub() {
   const tabs: { value: Tab; label: string }[] = [
     { value: 'board', label: 'Leaderboard' },
     ...(tour.cup ? [{ value: 'cup' as Tab, label: tour.cup.name }] : []),
+    { value: 'report', label: 'Report' },
     { value: 'tee', label: 'Tee times' },
     { value: 'feed', label: 'Feed' },
     { value: 'players', label: 'Players' },
@@ -130,6 +132,7 @@ export default function TourHub() {
           <Empty icon="podium-outline" title="No games set up" />
         ))}
       {tab === 'cup' && <CupView tour={tour} scores={scores} />}
+      {tab === 'report' && <TourReport tour={tour} scores={scores} />}
       {tab === 'tee' && <TeeSheet tour={tour} canScore={tour.memberUids.includes(me.uid)} />}
       {tab === 'feed' && <Feed events={events} />}
       {tab === 'players' && (

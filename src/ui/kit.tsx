@@ -1,5 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image } from 'expo-image';
+import { router } from 'expo-router';
 import type { ComponentProps, ReactNode } from 'react';
 import {
   ActivityIndicator,
@@ -152,6 +153,11 @@ export function IconButton({ icon, onPress, color = C.ink, bg = 'transparent', s
       <Icon name={icon} size={size} color={color} />
     </Pressable>
   );
+}
+
+/** Back arrow for every pushed screen; with no history (a fresh link or reload) it goes home. */
+export function BackButton({ color = C.ink }: { color?: string }) {
+  return <IconButton icon="chevron-back" color={color} onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} />;
 }
 
 export function Field({ label, hint, ...p }: TextInputProps & { label: string; hint?: string }) {

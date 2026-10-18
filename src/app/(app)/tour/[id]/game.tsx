@@ -18,6 +18,14 @@ export default function GameEditor() {
   return <GameForm key={cid} tour={tour} initial={existing ? structuredClone(existing) : null} />;
 }
 
+const CUTS: { label: string; cut: Comp['cut'] }[] = [
+  { label: 'No cut', cut: null },
+  { label: 'Top half and ties', cut: { mode: 'percent', value: 50 } },
+  { label: 'Top 60% and ties', cut: { mode: 'percent', value: 60 } },
+  { label: 'Top 10 and ties', cut: { mode: 'top', value: 10 } },
+  { label: 'Top 20 and ties', cut: { mode: 'top', value: 20 } },
+];
+
 function GameForm({ tour, initial }: { tour: Tour; initial: Comp | null }) {
   const [c, setC] = useState<Comp | null>(initial);
 
@@ -64,6 +72,17 @@ function GameForm({ tour, initial }: { tour: Tour; initial: Comp | null }) {
         {c.type === 'skins' && <Toggle label="Carry over ties" value={!!c.carry} onChange={(carry) => patch({ carry })} />}
         {(c.type === 'stableford' || c.type === 'stroke') && <Toggle label="Headline competition" sub="Shown first on the tour page and drives lead-change notifications" value={!!c.main} onChange={(main) => patch({ main })} />}
       </List>
+      {['stableford', 'stroke', 'bogey'].includes(c.type) && (
+        <>
+          <H>Cut</H>
+          <P sub>Made on the final round's leaderboard only. The pros cut after two rounds to the top 65 and ties; for a tour of friends, the top half and ties works well.</P>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+            {CUTS.map((x) => (
+              <Chip key={x.label} label={x.label} on={JSON.stringify(c.cut ?? null) === JSON.stringify(x.cut)} onPress={() => patch({ cut: x.cut })} />
+            ))}
+          </View>
+        </>
+      )}
       <Field
         label="Handicap allowance %"
         value={String(c.allowance)}

@@ -26,9 +26,16 @@ service cloud.firestore {
       allow delete: if signedIn() && resource.data.uid == me();
       // owners edit captions; anyone can like or unlike
       allow update: if signedIn() && (
-        (resource.data.uid == me() && onlyChanges(['caption']))
+        (resource.data.uid == me() && onlyChanges(['caption', 'images']) && request.resource.data.images.size() <= 10)
         || (onlyChanges(['likes']) && request.resource.data.likes.toSet().difference(resource.data.likes.toSet()).union(resource.data.likes.toSet().difference(request.resource.data.likes.toSet())).hasOnly([me()]))
       );
+    }
+    match /posts/{postId}/comments/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.uid == me() && request.resource.data.postId == postId
+        && request.resource.data.text is string && request.resource.data.text.size() <= 1000;
+      // the commenter, or the post's owner, can remove a comment
+      allow delete: if signedIn() && (resource.data.uid == me() || get(/databases/$(database)/documents/posts/$(postId)).data.uid == me());
     }
     match /stories/{id} {
       allow read: if signedIn();

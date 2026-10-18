@@ -1,5 +1,5 @@
 import { backend, newId, offline } from '@/backend';
-import { defaultPrefs, type Comp, type CompType, type Round, type Score, type ScoreMap, type Tour, type UserProfile } from '@/core/types';
+import { defaultPrefs, type Comp, type CompType, type HoleStat, type Post, type Round, type Score, type ScoreMap, type Tour, type UserProfile } from '@/core/types';
 import sample from '@/sample/sample-tours.json';
 import { teamColors } from '@/ui/theme';
 
@@ -11,6 +11,8 @@ export const COMP_TYPES: { type: CompType; label: string; about: string }[] = [
   { type: 'match', label: 'Match play', about: 'Hole-by-hole head to head, singles or better ball.' },
   { type: 'nassau', label: 'Nassau', about: 'Three bets in one: front nine, back nine and overall.' },
   { type: 'lowhigh', label: 'Low ball / high ball', about: 'Two points a hole: best low ball and best high ball.' },
+  { type: 'bogey', label: 'Par / bogey', about: 'Play each hole against par with your shots: win, halve or lose. Most holes up wins.' },
+  { type: 'eclectic', label: 'Eclectic', about: 'Your best score on each hole across all the rounds makes one dream card.' },
 ];
 export const compLabel = (t: CompType) => COMP_TYPES.find((c) => c.type === t)?.label ?? t;
 
@@ -67,6 +69,44 @@ const SAMPLE_BIOS = ['Fairways and greens.', 'Weekend hacker, weekday dreamer.',
 const SAMPLE_CLUBS = ['Fancourt', 'Pinnacle Point', 'Simola', 'Oubaai', 'George GC'];
 const SAMPLE_STORIES = ['Range session before the big one', 'Who is buying at the 19th?', 'Tee times are out', 'New driver. Same slice.'];
 
+/** Made-up but believable putts and hole stats for the sample cards (seeded, so the same every time). */
+function sampleDetail(strokes: (number | null)[], par: number[], seed: string): Pick<Score, 'putts' | 'stats'> {
+  let h = 2166136261;
+  for (const ch of seed) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
+  const rnd = () => {
+    h = Math.imul(h ^ (h >>> 15), 2246822507);
+    h = Math.imul(h ^ (h >>> 13), 3266489909);
+    return ((h ^= h >>> 16) >>> 0) / 4294967296;
+  };
+  const putts: (number | null)[] = [];
+  const stats: (HoleStat | null)[] = [];
+  strokes.forEach((g, i) => {
+    if (!g) {
+      putts.push(null);
+      stats.push(null);
+      return;
+    }
+    const d = g - par[i];
+    let pu = d <= -1 ? (rnd() < 0.8 ? 1 : 2) : d >= 2 ? (rnd() < 0.3 ? 3 : 2) : rnd() < 0.08 ? 3 : rnd() < 0.15 ? 1 : 2;
+    pu = Math.max(d <= -2 ? 0 : 1, Math.min(pu, g - 1));
+    putts.push(pu);
+    const st: HoleStat = {};
+    if (par[i] >= 4) {
+      const miss = rnd() < (d >= 2 ? 0.75 : d === 1 ? 0.55 : 0.35);
+      st.fw = !miss ? 'hit' : rnd() < 0.45 ? 'left' : rnd() < 0.85 ? 'right' : 'short';
+    }
+    if (rnd() < (d >= 2 ? 0.3 : d === 1 ? 0.2 : 0.06)) st.sand = 1;
+    if (d >= 2) {
+      const r = rnd();
+      if (r < 0.22) st.water = 1;
+      else if (r < 0.36) st.ob = 1;
+      else if (r < 0.5) st.lost = 1;
+    }
+    stats.push(st);
+  });
+  return { putts, stats };
+}
+
 /** Offline test mode: a sample club with two finished tours, other golfers'
  *  profiles, follows and stories, with you playing as the 2024 champion. */
 export async function loadSample(me: UserProfile) {
@@ -100,7 +140,15 @@ export async function loadSample(me: UserProfile) {
     adminUids: [],
     memberUids: [me.uid],
   });
-  await backend.updateClub(clubId, { memberUids: members });
+  await backend.updateClub(clubId, {
+    memberUids: members,
+    formats: ['stableford', 'skins', 'ryder'],
+    sponsors: [
+      { id: 'sp1', name: 'The 19th Hole', blurb: 'Tour Championship trophy' },
+      { id: 'sp2', name: 'Fairway Motors', blurb: 'Longest drive, every round' },
+      { id: 'sp3', name: 'Coastal Brew Co.', blurb: 'Nearest the pin on the par 3s' },
+    ],
+  });
 
   for (const t of data.tours) {
     const year = t.id.slice(-4);
@@ -118,10 +166,13 @@ export async function loadSample(me: UserProfile) {
       memberUids: [me.uid, ...t.players.map((p) => uidOf(p.id)).filter((u) => u !== me.uid)],
       players: t.players.map((p) => ({ ...p, uid: uidOf(p.id), name: p.id === 'p7' ? me.name : p.name })),
       teams: t.teams.map((x, i) => ({ ...x, name: i ? 'Gold' : 'Black', color: i ? teamColors[2] : teamColors[0] })),
+      comps: t.comps.map((c) => (c.main ? { ...c, cut: { mode: 'percent', value: 50 } } : c)),
       rounds: t.rounds.map((r, i) => ({ ...r, date: `${year}-12-${20 + i}`, groups: r.groups.map((g, gi) => ({ ...g, teeTime: `0${8 + Math.floor(gi / 6)}:${String((gi * 10) % 60).padStart(2, '0')}` })) })),
     });
     for (const s of Object.values(data.scores).filter((x) => x.tourId === t.id)) {
-      await backend.saveScore({ ...(s as Score), tourId: id }, { silent: true });
+      const r = t.rounds.find((x) => x.id === s.rid);
+      const detail = r ? sampleDetail(s.strokes, r.course.par, `${t.id}${s.rid}${s.unitId}`) : {};
+      await backend.saveScore({ ...(s as Score), ...detail, tourId: id }, { silent: true });
     }
   }
 
@@ -129,6 +180,19 @@ export async function loadSample(me: UserProfile) {
   for (const o of others.slice(0, 8)) {
     await backend.follow(me.uid, o.uid);
     await backend.follow(o.uid, me.uid);
+  }
+  // a little chat under your latest round
+  const latest = (await new Promise<Post[]>((res) => {
+    const off = backend.watchPosts([me.uid], (p) => {
+      res(p);
+      setTimeout(() => off(), 0);
+    });
+  }))[0];
+  if (latest) {
+    await backend.addComment({ postId: latest.id, uid: others[0].uid, text: 'Solid finish. Drinks are on you tonight.', at: Date.now() - 3 * 3600000 });
+    await backend.addComment({ postId: latest.id, uid: others[2].uid, text: 'Big week. Same again next year? 👏', at: Date.now() - 2 * 3600000 });
+    await backend.toggleLike(latest.id, others[1].uid);
+    await backend.toggleLike(latest.id, others[3].uid);
   }
   for (const [i, text] of SAMPLE_STORIES.entries()) {
     await backend.addStory({ uid: others[i].uid, text, at: Date.now() - (i + 1) * 47 * 60000 });

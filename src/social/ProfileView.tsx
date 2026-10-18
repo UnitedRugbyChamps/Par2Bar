@@ -9,7 +9,7 @@ import { backend } from '@/backend';
 import { fmtRel } from '@/core/engine';
 import type { Post } from '@/core/types';
 import { useFollows, useMe, usePosts, useRounds, useUser } from '@/state/session';
-import { Avatar, Button, Display, Empty, IconButton, Label, Loading, Num, P, Segmented } from '@/ui/kit';
+import { Avatar, BackButton, Button, Display, Empty, IconButton, Label, Loading, Num, P, Segmented } from '@/ui/kit';
 import { C, F, S } from '@/ui/theme';
 import { PostCard } from './PostCard';
 import { StatsView } from './StatsView';
@@ -19,13 +19,19 @@ type Tab = 'posts' | 'activity' | 'stats';
 const sum = (a: number[]) => a.reduce((x, y) => x + y, 0);
 
 function Tile({ p, size }: { p: Post; size: number }) {
-  const go = () => (p.kind === 'round' && p.round ? router.push(`/round/${encodeURIComponent(p.round.id)}`) : router.push(`/post/${p.id}?uid=${p.uid}`));
+  const go = () => router.push(`/post/${p.id}`);
   return (
     <Pressable onPress={go} style={{ width: size, height: size }}>
       {p.kind === 'photo' ? (
         <Image source={{ uri: p.images[0] }} style={{ width: size, height: size, backgroundColor: C.soft }} contentFit="cover" />
       ) : p.round ? (
-        <View style={{ width: size, height: size, backgroundColor: C.ink, padding: 10, justifyContent: 'space-between' }}>
+        <View style={{ width: size, height: size, backgroundColor: C.ink, padding: 10, justifyContent: 'space-between', overflow: 'hidden' }}>
+          {p.images[0] ? (
+            <>
+              <Image source={{ uri: p.images[0] }} style={{ position: 'absolute', inset: 0 }} contentFit="cover" />
+              <View style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.45)' }} />
+            </>
+          ) : null}
           <Text numberOfLines={2} style={{ color: C.faint, fontSize: 9, fontFamily: F.semi, letterSpacing: 1, textTransform: 'uppercase' }}>
             {p.round.course}
           </Text>
@@ -41,7 +47,7 @@ function Tile({ p, size }: { p: Post; size: number }) {
   );
 }
 
-export function ProfileView({ uid }: { uid: string }) {
+export function ProfileView({ uid, back }: { uid: string; back?: boolean }) {
   const me = useMe();
   const user = useUser(uid);
   const follows = useFollows(uid);
@@ -62,7 +68,7 @@ export function ProfileView({ uid }: { uid: string }) {
         {user.cover ? <Image source={{ uri: user.cover }} style={{ position: 'absolute', inset: 0 }} contentFit="cover" /> : <CoverArt />}
         <LinearGradient colors={['rgba(0,0,0,0.45)', 'transparent', 'rgba(0,0,0,0.35)']} style={{ position: 'absolute', inset: 0 }} />
         <View style={{ position: 'absolute', top: insets.top + 6, left: 8, right: 8, flexDirection: 'row', justifyContent: 'space-between' }}>
-          {router.canGoBack() && !mine ? <IconButton icon="chevron-back" color={C.white} onPress={() => router.back()} /> : <View />}
+          {back ? <BackButton color={C.white} /> : <View />}
           {mine && <IconButton icon="settings-outline" color={C.white} onPress={() => router.push('/settings')} />}
         </View>
       </View>

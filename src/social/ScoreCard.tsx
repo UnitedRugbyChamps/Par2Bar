@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import type { HoleStat } from '@/core/types';
 import { C, F, R } from '@/ui/theme';
 
 /** Scorecard marks the way they're drawn by hand: circles under par, squares over. */
@@ -22,10 +23,33 @@ export function ScoreMark({ g, par, size = 26, dark }: { g: number | null | unde
   ); // double bogey or worse: double square
 }
 
+const FW: Record<string, string> = { hit: '●', left: '←', right: '→', short: '↓', long: '↑' };
+const trouble = (x: HoleStat | null | undefined) =>
+  x ? [['S', x.sand], ['W', x.water], ['O', x.ob], ['L', x.lost], ['P', x.pen]].map(([k, n]) => (n ? (Number(n) > 1 ? `${k}${n}` : k) : '')).join('') : '';
+
 const sum = (a: (number | null | undefined)[]) => a.reduce<number>((x, y) => x + (y ?? 0), 0);
 
 /** Two stacked nines that fit a phone without sideways scrolling. */
-export function ScoreCard({ par, si, strokes, pts, dark }: { par: number[]; si?: number[]; strokes: (number | null)[]; pts?: (number | null)[]; dark?: boolean }) {
+export function ScoreCard({
+  par,
+  si,
+  strokes,
+  pts,
+  putts,
+  stats,
+  dark,
+}: {
+  par: number[];
+  si?: number[];
+  strokes: (number | null)[];
+  pts?: (number | null)[];
+  putts?: (number | null)[];
+  stats?: (HoleStat | null)[];
+  dark?: boolean;
+}) {
+  const hasPutts = !!putts?.some((p) => p != null);
+  const hasFw = !!stats?.some((x) => x?.fw);
+  const hasTrouble = !!stats?.some((x) => x && (x.sand || x.water || x.ob || x.lost || x.pen));
   const fg = dark ? C.white : C.ink;
   const line = dark ? '#2A2A28' : C.line;
   const nine = (from: number) => {
@@ -71,6 +95,39 @@ export function ScoreCard({ par, si, strokes, pts, dark }: { par: number[]; si?:
           ))}
           <Text style={[st.sum, { color: fg, fontFamily: F.heavy, fontSize: 15 }]}>{played.length ? sum(strokes.slice(from, from + 9)) : ''}</Text>
         </View>
+        {hasPutts && (
+          <View style={[st.row, { borderBottomColor: line }]}>
+            <Text style={[st.lab, { color: C.sub }]}>PUTTS</Text>
+            {idx.map((i) => (
+              <Text key={i} style={[st.cell, { color: putts![i] != null && putts![i]! >= 3 ? fg : C.sub, fontFamily: putts![i] != null && putts![i]! >= 3 ? F.heavy : F.medium }]}>
+                {putts![i] ?? ''}
+              </Text>
+            ))}
+            <Text style={[st.sum, { color: C.sub }]}>{sum(putts!.slice(from, from + 9)) || ''}</Text>
+          </View>
+        )}
+        {hasFw && (
+          <View style={[st.row, { borderBottomColor: line }]}>
+            <Text style={[st.lab, { color: C.sub }]}>FWY</Text>
+            {idx.map((i) => (
+              <Text key={i} style={[st.cell, { color: stats![i]?.fw === 'hit' ? fg : C.sub }]}>
+                {FW[stats![i]?.fw ?? ''] ?? ''}
+              </Text>
+            ))}
+            <Text style={st.sum} />
+          </View>
+        )}
+        {hasTrouble && (
+          <View style={[st.row, { borderBottomColor: line }]}>
+            <Text style={[st.lab, { color: C.sub }]}>TRBL</Text>
+            {idx.map((i) => (
+              <Text key={i} style={[st.cell, { color: C.under, fontSize: 9, fontFamily: F.bold }]}>
+                {trouble(stats![i])}
+              </Text>
+            ))}
+            <Text style={st.sum} />
+          </View>
+        )}
         {pts && (
           <View style={[st.row, { borderBottomWidth: 0 }]}>
             <Text style={[st.lab, { color: C.sub }]}>PTS</Text>
@@ -89,6 +146,7 @@ export function ScoreCard({ par, si, strokes, pts, dark }: { par: number[]; si?:
     <View style={{ gap: 14 }}>
       {nine(0)}
       {nine(9)}
+      {hasTrouble && <Text style={{ fontSize: 10, color: C.sub, fontFamily: F.medium, textAlign: 'center' }}>Trouble: S sand · W water · O out of bounds · L lost ball · P other penalty</Text>}
       <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 18, flexWrap: 'wrap' }}>
         {[
           ['Eagle+', -2],

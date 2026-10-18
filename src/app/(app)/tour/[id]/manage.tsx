@@ -30,6 +30,7 @@ export default function Manage() {
         {tour.comps.map((c) => (
           <Row key={c.id} title={c.name + (c.main ? '  ★' : '')} subtitle={`${compLabel(c.type)} · ${c.basis} · ${c.allowance}%`} onPress={() => router.push(`/tour/${id}/game?cid=${c.id}`)} />
         ))}
+        <Row left={<Icon name="grid-outline" color={C.brand} />} title="Pick from game formats" subtitle="Stableford, medal, better ball, Ryder Cup, scramble and more" onPress={go('formats')} />
         <Row left={<Icon name="add-circle" color={C.brand} />} title="Add a game" onPress={() => router.push(`/tour/${id}/game?cid=new`)} />
       </List>
       <H>Team cup</H>

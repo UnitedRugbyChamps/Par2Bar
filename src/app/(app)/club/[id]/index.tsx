@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { backend } from '@/backend';
@@ -10,6 +10,7 @@ import { clubRecords, honours, type Honour } from '@/club/honours';
 import { CoverArt } from '@/social/ProfileView';
 import { fmtHi, useProfiles } from '@/social/util';
 import { isClubAdmin, useClub, useClubTours, useFollows, useManyScores, useMe } from '@/state/session';
+import { formatById } from '@/tour/formats';
 import { fmtRange, today } from '@/tour/helpers';
 import { shareText } from '@/ui/confirm';
 import { Avatar, Button, Display, Empty, Icon, IconButton, Label, List, Loading, Num, P, Row, Segmented } from '@/ui/kit';
@@ -64,6 +65,40 @@ export default function ClubPage() {
 
       <View style={{ padding: S.lg, gap: S.md }}>
         {club.about ? <P>{club.about}</P> : null}
+        {club.formats?.length ? (
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+            <Label style={{ marginRight: 4 }}>We play</Label>
+            {club.formats.map((f) => (
+              <View key={f} style={{ borderWidth: 1, borderColor: C.ink, borderRadius: R.pill, paddingHorizontal: 10, paddingVertical: 4 }}>
+                <Text style={{ fontFamily: F.semi, fontSize: 12, color: C.ink }}>{formatById(f)?.label ?? f}</Text>
+              </View>
+            ))}
+          </View>
+        ) : null}
+        {club.sponsors?.length ? (
+          <View style={{ gap: S.sm }}>
+            <Label>Sponsors</Label>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: S.md }}>
+              {club.sponsors.map((sp) => (
+                <Pressable key={sp.id} disabled={!sp.url} onPress={() => sp.url && Linking.openURL(/^https?:/.test(sp.url) ? sp.url : `https://${sp.url}`)} style={[{ width: 150, backgroundColor: C.card, borderRadius: R.lg, padding: S.md, gap: 6, alignItems: 'center' }, shadow]}>
+                  <Avatar name={sp.name} uri={sp.logo} size={52} />
+                  <Text numberOfLines={1} style={{ fontFamily: F.bold, fontSize: 13, color: C.ink }}>
+                    {sp.name}
+                  </Text>
+                  {sp.blurb ? (
+                    <Text numberOfLines={2} style={{ fontFamily: F.body, fontSize: 11, color: C.sub, textAlign: 'center' }}>
+                      {sp.blurb}
+                    </Text>
+                  ) : null}
+                </Pressable>
+              ))}
+            </ScrollView>
+          </View>
+        ) : admin ? (
+          <Pressable onPress={() => router.push(`/club/${club.id}/edit`)}>
+            <Text style={{ fontFamily: F.semi, fontSize: 13, color: C.sub }}>+ Add sponsors and the formats you play</Text>
+          </Pressable>
+        ) : null}
         <View style={{ flexDirection: 'row', gap: S.sm }}>
           {member ? (
             <>

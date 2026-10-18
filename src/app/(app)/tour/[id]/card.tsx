@@ -4,6 +4,8 @@ import { Text, View } from 'react-native';
 
 import * as E from '@/core/engine';
 import { mainComp } from '@/core/notify';
+import { addCard, emptyLine } from '@/core/stats';
+import { RoundStats } from '@/social/RoundStats';
 import { ScoreCard } from '@/social/ScoreCard';
 import { useTour } from '@/state/session';
 import { Avatar, Card, Chip, Display, Empty, Label, Loading, Num, Screen } from '@/ui/kit';
@@ -24,6 +26,7 @@ export default function TourScoreCard() {
   const line = E.roundLine(M, round, unitId, comp);
   const st = M.strokes(round, unitId);
   const c = round.course;
+  const card = M.card(round.id, unitId);
   const pts = st.map((g, i) => E.points(g, c.par[i], c.si[i], line.h));
 
   return (
@@ -58,8 +61,9 @@ export default function TourScoreCard() {
         </View>
       )}
       <Card>
-        <ScoreCard par={c.par} si={c.si} strokes={st} pts={pts} />
+        <ScoreCard par={c.par} si={c.si} strokes={st} pts={pts} putts={card?.putts} stats={card?.stats} />
       </Card>
+      {line.n ? <RoundStats s={addCard(emptyLine(), round, st, card?.putts, card?.stats, line.h)} /> : null}
     </Screen>
   );
 }

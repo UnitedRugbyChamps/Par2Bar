@@ -161,3 +161,47 @@ test('a finished card makes a round record with stats', async () => {
   assert.equal(st.rounds, 1);
   assert.equal(st.holes, 18);
 });
+
+test('hole stats, streaks, awards and the cut', async () => {
+  const S = await import('../src/core/stats.ts');
+  const par = Array(18).fill(4);
+  const si = Array.from({ length: 18 }, (_, i) => i + 1);
+  const r = { id: 'r', name: 'R', date: '2026-01-01', course: { name: 'X', tee: 'W', rating: null, slope: null, par, si }, groups: [] };
+  // birdie birdie birdie, then bogey x4, a quad, the rest pars
+  const strokes = [3, 3, 3, 5, 5, 5, 5, 8, ...Array(10).fill(4)];
+  const putts = [1, 1, 1, 2, 3, 2, 2, 3, ...Array(10).fill(2)];
+  const stats = [{ fw: 'hit' as const }, { fw: 'left' as const, sand: 1 }, { fw: 'right' as const, water: 1 }, null, null, null, null, { lost: 1, ob: 1 }, ...Array(10).fill(null)];
+  const l = S.addCard(S.emptyLine(), r, strokes, putts, stats, 0);
+  assert.equal(l.birdies, 3);
+  assert.equal(l.birdieStreak, 3);
+  assert.equal(l.bogeyStreak, 5);
+  assert.equal(l.quads, 1);
+  assert.equal(l.worstHole, 4);
+  assert.equal(l.fwHoles, 3);
+  assert.equal(l.fwHit, 1);
+  assert.equal(S.penalties(l), 3);
+  assert.equal(l.threePutts, 2);
+  assert.equal(l.gir, 3 + 1 + 10); // birdies, the three-putt bogey, and pars with two putts
+  const aw = S.awards([{ id: 'a', name: 'A', ids: ['a'], line: l }, { id: 'b', name: 'B', ids: ['b'], line: S.emptyLine() }]);
+  assert.equal(aw.find((a) => a.id === 'quads')?.winners[0], 'A');
+  assert.equal(S.cutPosition(16, { mode: 'percent', value: 50 }), 8);
+  assert.equal(S.cutPosition(12, { mode: 'top', value: 65 }), 12);
+
+  const rep = S.tourReport(tour('sample-2024'), data.scores);
+  assert.equal(rep.players.length, 12);
+  assert.equal(rep.teams.length, 2);
+  assert.ok(rep.tour.holes > 500);
+  assert.equal(S.tourReport(tour('sample-2024'), data.scores, 'r1').groups.length > 0, true);
+});
+
+test('par/bogey and eclectic', () => {
+  const t = tour('sample-2024');
+  const M = E.model(t, data.scores);
+  const lb = E.leaderboard(M, { id: 'b', name: 'Bogey', type: 'bogey', basis: 'net', allowance: 100, rounds: [] });
+  assert.ok(lb.rows[0].total! >= lb.rows[lb.rows.length - 1].total!);
+  const ec = E.leaderboard(M, { id: 'e', name: 'Eclectic', type: 'eclectic', basis: 'net', allowance: 100, rounds: [] });
+  const st = E.leaderboard(M, { id: 's', name: 'Stroke', type: 'stroke', basis: 'net', allowance: 100, rounds: [] });
+  // the best of three rounds per hole can't be worse than any one round
+  const best = Math.min(...st.rows[0].per.filter((p) => p.n === 18).map((p) => p.toPar!));
+  assert.ok(ec.rows.find((r) => r.uid === st.rows[0].uid)!.total! <= best);
+});

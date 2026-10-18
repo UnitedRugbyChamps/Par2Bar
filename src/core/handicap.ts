@@ -58,6 +58,7 @@ export function roundRecord(tour: Tour, round: Round, player: Player, score: Sco
     si: c.si,
     strokes,
     putts: score.putts,
+    ...(score.stats ? { stats: score.stats } : {}),
     courseHcp: ch,
     gross: sum(strokes),
     adjGross,
@@ -68,10 +69,11 @@ export function roundRecord(tour: Tour, round: Round, player: Player, score: Sco
   };
 }
 
-/** Round records produced by a score change: only cards that just reached 18 holes. */
+/** Round records produced by a score change: cards that reach 18 holes, or finished cards that change. */
 export function finishedRecords(tour: Tour, before: Score | undefined, after: Score, chOf: (r: Round, pid: string) => number): RoundRecord[] {
   const was = (before?.strokes ?? []).filter(Boolean).length;
-  if (was === 18 && JSON.stringify(before?.strokes) === JSON.stringify(after.strokes)) return [];
+  const same = (k: 'strokes' | 'putts' | 'stats') => JSON.stringify(before?.[k] ?? null) === JSON.stringify(after[k] ?? null);
+  if (was === 18 && same('strokes') && same('putts') && same('stats')) return [];
   const round = tour.rounds.find((r) => r.id === after.rid);
   const player = tour.players.find((p) => p.id === after.unitId);
   if (!round || !player) return [];

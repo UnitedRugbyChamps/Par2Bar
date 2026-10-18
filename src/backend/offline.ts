@@ -8,6 +8,7 @@ import {
   defaultPrefs,
   scoreKey,
   type Club,
+  type Comment,
   type Course,
   type Post,
   type RoundRecord,
@@ -35,10 +36,11 @@ interface Store {
   posts: Record<string, Post>;
   stories: Record<string, Story>;
   rounds: Record<string, RoundRecord>;
+  comments: Comment[];
 }
 
 const KEY = 'tourcard.offline.v1';
-const empty = (): Store => ({ users: {}, session: null, tours: {}, scores: {}, events: {}, courses: {}, clubs: {}, follows: [], posts: {}, stories: {}, rounds: {} });
+const empty = (): Store => ({ users: {}, session: null, tours: {}, scores: {}, events: {}, courses: {}, clubs: {}, follows: [], posts: {}, stories: {}, rounds: {}, comments: [] });
 const DAY = 86400000;
 
 type EventSink = (tour: Tour, events: TourEvent[]) => void;
@@ -99,7 +101,7 @@ export function createOfflineBackend(onEvents?: EventSink): OfflineBackend {
       const postId = `round-${rec.id}`;
       const at = silent && rec.date ? Date.parse(rec.date + 'T16:00:00Z') : Date.now();
       const old = db.posts[postId];
-      db.posts[postId] = { id: postId, uid: rec.uid, kind: 'round', images: [], caption: old?.caption ?? '', at: old?.at ?? at, likes: old?.likes ?? [], round: { ...rec, at } };
+      db.posts[postId] = { id: postId, uid: rec.uid, kind: 'round', images: old?.images ?? [], caption: old?.caption ?? '', at: old?.at ?? at, likes: old?.likes ?? [], comments: old?.comments ?? 0, round: { ...rec, at } };
       const u = db.users[rec.uid];
       if (u && u.hiAuto !== false) {
         const hi = handicapIndex(Object.values(db.rounds).filter((r) => r.uid === rec.uid));
@@ -261,6 +263,27 @@ export function createOfflineBackend(onEvents?: EventSink): OfflineBackend {
     },
     async deletePost(id) {
       delete db.posts[id];
+      await save();
+    },
+    watchPost(id, cb) {
+      return watch(() => cb(db.posts[id] ?? null));
+    },
+    async updatePost(id, patch) {
+      if (!db.posts[id]) return;
+      db.posts[id] = { ...db.posts[id], ...patch };
+      await save();
+    },
+    watchComments(postId, cb) {
+      return watch(() => cb((db.comments ?? []).filter((c) => c.postId === postId).sort((a, b) => a.at - b.at)));
+    },
+    async addComment(c) {
+      db.comments = [...(db.comments ?? []), { ...c, id: newId('cm') }];
+      if (db.posts[c.postId]) db.posts[c.postId].comments = (db.posts[c.postId].comments ?? 0) + 1;
+      await save();
+    },
+    async deleteComment(postId, id) {
+      db.comments = (db.comments ?? []).filter((c) => c.id !== id);
+      if (db.posts[postId]) db.posts[postId].comments = Math.max(0, (db.posts[postId].comments ?? 1) - 1);
       await save();
     },
     async toggleLike(postId, uid) {

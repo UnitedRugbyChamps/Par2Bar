@@ -24,7 +24,7 @@ import {
 import { getDownloadURL, getStorage, ref as storageRef, uploadString } from 'firebase/storage';
 import { Platform } from 'react-native';
 
-import { defaultPrefs, type Club, type Course, type Post, type RoundRecord, type Score, type ScoreMap, type Story, type Tour, type TourEvent, type UserProfile } from '@/core/types';
+import { defaultPrefs, type Club, type Comment, type Course, type Post, type RoundRecord, type Score, type ScoreMap, type Story, type Tour, type TourEvent, type UserProfile } from '@/core/types';
 import { BackendError, newId, newJoinCode, type Backend, type Unsub } from './types';
 
 /* Firestore layout (rules in firestore.rules):
@@ -243,6 +243,21 @@ export function createFirebaseBackend(config: FirebaseOptions): Backend {
     },
     async deletePost(id) {
       await deleteDoc(doc(db, 'posts', id));
+    },
+    watchPost(id, cb) {
+      return onSnapshot(doc(db, 'posts', id), (s) => cb(s.exists() ? ({ ...(s.data() as Post), id: s.id }) : null));
+    },
+    async updatePost(id, patch) {
+      await updateDoc(doc(db, 'posts', id), patch);
+    },
+    watchComments(postId, cb) {
+      return onSnapshot(query(collection(db, 'posts', postId, 'comments'), orderBy('at', 'asc'), limit(200)), (s) => cb(s.docs.map((d) => ({ ...(d.data() as Comment), id: d.id }))));
+    },
+    async addComment(c) {
+      await addDoc(collection(db, 'posts', c.postId, 'comments'), c);
+    },
+    async deleteComment(postId, id) {
+      await deleteDoc(doc(db, 'posts', postId, 'comments', id));
     },
     async toggleLike(postId, uid) {
       const ref = doc(db, 'posts', postId);

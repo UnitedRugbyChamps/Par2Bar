@@ -103,6 +103,12 @@ export function usePosts(uids: string[]) {
   return posts;
 }
 
+export function usePost(id: string | undefined) {
+  const [p, setP] = useState<Post | null | undefined>(undefined);
+  useEffect(() => (id ? backend.watchPost(id, setP) : undefined), [id]);
+  return p;
+}
+
 export function useStories(uids: string[]) {
   const key = uids.join(',');
   const [stories, setStories] = useState<Story[]>([]);

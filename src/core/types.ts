@@ -76,7 +76,9 @@ export type CompType =
   | 'scramble'
   | 'match'
   | 'nassau'
-  | 'lowhigh';
+  | 'lowhigh'
+  | 'eclectic'
+  | 'bogey';
 
 export interface Pairing {
   rid: string;
@@ -97,6 +99,8 @@ export interface Comp {
   main?: boolean; // the headline competition on the tour page
   /** head-to-head games (match, nassau, low/high ball) */
   pairings?: Pairing[];
+  /** Cut made on the final round's leaderboard: the top N, or the top N percent, and ties. */
+  cut?: { mode: 'top' | 'percent'; value: number } | null;
 }
 
 export type CupFormat = 'fourball' | 'foursomes' | 'singles';
@@ -145,8 +149,24 @@ export interface Score {
   unitId: string; // player id, or a team unit id for foursomes/scramble
   strokes: (number | null)[];
   putts: (number | null)[];
+  /** Optional detail per hole: tee shot, sand and trouble. */
+  stats?: (HoleStat | null)[];
   updatedBy?: string;
   updatedAt?: number;
+}
+
+export type Fairway = 'hit' | 'left' | 'right' | 'short' | 'long';
+
+export interface HoleStat {
+  /** where the tee shot finished on a par 4 or 5 */
+  fw?: Fairway | null;
+  /** shots played from a bunker */
+  sand?: number;
+  /** penalty strokes: out of bounds, water, lost ball, other */
+  ob?: number;
+  water?: number;
+  lost?: number;
+  pen?: number;
 }
 
 export type ScoreMap = Record<string, Score>;
@@ -207,7 +227,19 @@ export interface Club {
   adminUids: string[];
   memberUids: string[];
   joinCode: string;
+  sponsors?: Sponsor[];
+  /** Game formats the club plays; new tours start with these set up. */
+  formats?: string[];
   createdAt?: number;
+}
+
+export interface Sponsor {
+  id: string;
+  name: string;
+  logo?: string;
+  url?: string;
+  /** e.g. "Longest drive, hole 7" */
+  blurb?: string;
 }
 
 /** One finished 18-hole round for a player with an account. Drives the
@@ -230,6 +262,7 @@ export interface RoundRecord {
   si: number[];
   strokes: number[];
   putts?: (number | null)[];
+  stats?: (HoleStat | null)[];
   courseHcp: number;
   gross: number;
   adjGross: number;
@@ -248,7 +281,17 @@ export interface Post {
   caption: string;
   at: number;
   likes: string[];
+  /** kept up to date by the server */
+  comments?: number;
   round?: RoundRecord;
+}
+
+export interface Comment {
+  id: string;
+  postId: string;
+  uid: string;
+  text: string;
+  at: number;
 }
 
 export interface Story {

@@ -1,4 +1,4 @@
-import type { Club, Course, Follows, Post, RoundRecord, Score, ScoreMap, Story, Tour, TourEvent, UserProfile } from '@/core/types';
+import type { Club, Comment, Course, Follows, Post, RoundRecord, Score, ScoreMap, Story, Tour, TourEvent, UserProfile } from '@/core/types';
 
 export type Unsub = () => void;
 export type NewTour = Omit<Tour, 'id' | 'joinCode'>;
@@ -41,6 +41,12 @@ export interface Backend {
   watchPosts(uids: string[], cb: (p: Post[]) => void): Unsub;
   createPost(p: Omit<Post, 'id'>): Promise<string>;
   deletePost(id: string): Promise<void>;
+  watchPost(id: string, cb: (p: Post | null) => void): Unsub;
+  /** Owners change the caption, or the photo behind a round. */
+  updatePost(id: string, patch: Partial<Pick<Post, 'caption' | 'images'>>): Promise<void>;
+  watchComments(postId: string, cb: (c: Comment[]) => void): Unsub;
+  addComment(c: Omit<Comment, 'id'>): Promise<void>;
+  deleteComment(postId: string, id: string): Promise<void>;
   toggleLike(postId: string, uid: string): Promise<void>;
   /** Stories from the last 24 hours by these users */
   watchStories(uids: string[], cb: (s: Story[]) => void): Unsub;

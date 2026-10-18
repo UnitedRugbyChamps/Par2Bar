@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 import { backend } from '@/backend';
 import { isClubAdmin, useMe, useMyClubs } from '@/state/session';
+import { applyFormats, formatById } from '@/tour/formats';
 import { today } from '@/tour/helpers';
 import { Button, Chip, Field, Label, P, Screen } from '@/ui/kit';
 import { teamColors } from '@/ui/theme';
@@ -13,6 +14,8 @@ export default function NewTour() {
   const params = useLocalSearchParams<{ club?: string }>();
   const clubs = (useMyClubs() ?? []).filter((c) => isClubAdmin(c, me.uid));
   const [clubId, setClubId] = useState<string | null>(params.club ?? null);
+  const club = clubs.find((c) => c.id === clubId);
+  const formats = club?.formats?.length ? club.formats : ['stableford'];
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
   const [start, setStart] = useState(today());
@@ -38,12 +41,21 @@ export default function NewTour() {
       <Field label="First day" value={start} onChangeText={setStart} placeholder="YYYY-MM-DD" />
       <Field label="Last day" value={end} onChangeText={setEnd} placeholder="YYYY-MM-DD" />
       <P sub>Next you'll add players, rounds, tee times and the games you want to play. You can change any of it later.</P>
+      <P sub>
+        Games to start with: {formats.map((f) => formatById(f)?.label).join(', ')}
+        {club?.formats?.length ? ` (from ${club.name})` : ''}. Add more formats later under Manage.
+      </P>
       <Button
         title="Create tour"
         busy={busy}
         disabled={!valid}
         onPress={async () => {
           setBusy(true);
+          const teams = [
+            { id: 'ta', name: 'Team Black', color: teamColors[0] },
+            { id: 'tb', name: 'Team Gold', color: teamColors[2] },
+          ];
+          const games = applyFormats({ comps: [], cup: null, teams, rounds: [] }, formats);
           const id = await backend.createTour({
             name: name.trim(),
             clubId,
@@ -55,13 +67,10 @@ export default function NewTour() {
             adminUids: [],
             memberUids: [me.uid],
             players: [{ id: 'p' + me.uid, name: me.name, uid: me.uid, hi: me.hi }],
-            teams: [
-              { id: 'ta', name: 'Team Black', color: teamColors[0] },
-              { id: 'tb', name: 'Team Gold', color: teamColors[2] },
-            ],
+            teams,
             rounds: [],
-            comps: [{ id: 'main', name: 'Stableford', type: 'stableford', basis: 'net', allowance: 100, display: 'points', rounds: [], main: true }],
-            cup: null,
+            comps: games.comps,
+            cup: games.cup,
           });
           router.replace(`/tour/${id}`);
           router.push(`/tour/${id}/manage`);

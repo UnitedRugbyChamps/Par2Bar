@@ -8,7 +8,7 @@ export default function UserProfile() {
   const { uid } = useLocalSearchParams<{ uid: string }>();
   return (
     <ScrollView style={{ flex: 1, backgroundColor: C.bg }}>
-      <ProfileView uid={uid} />
+      <ProfileView uid={uid} back />
     </ScrollView>
   );
 }

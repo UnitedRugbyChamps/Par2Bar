@@ -2,7 +2,7 @@ import { Redirect, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
 import { useSession } from '@/state/session';
-import { Loading } from '@/ui/kit';
+import { BackButton, Loading } from '@/ui/kit';
 import { C, F } from '@/ui/theme';
 
 export default function AppLayout() {
@@ -20,6 +20,7 @@ export default function AppLayout() {
           headerShadowVisible: false,
           headerBackButtonDisplayMode: 'minimal',
           contentStyle: { backgroundColor: C.bg },
+          headerLeft: () => <BackButton />,
         }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="user/[uid]/index" options={{ headerShown: false }} />

@@ -1,15 +1,15 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { backend } from '@/backend';
 import * as E from '@/core/engine';
 import { mainComp } from '@/core/notify';
-import { scoreKey, type Group, type Round, type ScoreMap, type Tour } from '@/core/types';
+import { scoreKey, type Fairway, type Group, type HoleStat, type Round, type ScoreMap, type Tour } from '@/core/types';
 import { ScoreMark } from '@/social/ScoreCard';
 import { useMe, useTour } from '@/state/session';
 import { teamOf } from '@/tour/views';
-import { Avatar, Button, Empty, Icon, Loading, P, Screen } from '@/ui/kit';
+import { Avatar, Button, Empty, Icon, Loading, P, Screen, type IconName } from '@/ui/kit';
 import { C, F, R, S, shadow } from '@/ui/theme';
 
 export default function ScoreEntry() {
@@ -42,8 +42,14 @@ function ScoreForm({ tour, scores, round, group }: { tour: Tour; scores: ScoreMa
   const M = useMemo(() => E.model(tour, scores), [tour, scores]);
   const units = useMemo(() => [...new Set(group.ids.map((p) => M.ballOf(round, p)))], [M, round, group]);
   // taps show instantly; the saved card catches up from the backend
-  const [edits, setEdits] = useState<Record<string, (number | null)[]>>({});
-  const cardOf = (u: string) => edits[u] ?? scores[scoreKey(tour.id, round.id, u)]?.strokes ?? Array(18).fill(null);
+  const [edits, setEdits] = useState<Record<string, Card>>({});
+  const [detail, setDetail] = useState(false);
+  const savedOf = (u: string): Card => {
+    const s = scores[scoreKey(tour.id, round.id, u)];
+    return { strokes: s?.strokes ?? Array(18).fill(null), putts: s?.putts ?? Array(18).fill(null), stats: s?.stats ?? Array(18).fill(null) };
+  };
+  const fullOf = (u: string) => edits[u] ?? savedOf(u);
+  const cardOf = (u: string) => fullOf(u).strokes;
   const order = useMemo(() => {
     const start = (group.startHole ?? 1) - 1;
     return Array.from({ length: 18 }, (_, i) => (start + i) % 18);
@@ -59,12 +65,16 @@ function ScoreForm({ tour, scores, round, group }: { tour: Tour; scores: ScoreMa
   const comp = mainComp(tour);
   const allow = (comp?.allowance ?? 100) / 100;
 
-  const set = (u: string, v: number | null) => {
-    const next = [...cardOf(u)];
-    next[hole] = v;
+  const write = (u: string, next: Card) => {
     setEdits((c) => ({ ...c, [u]: next }));
-    const prev = scores[scoreKey(tour.id, round.id, u)];
-    backend.saveScore({ tourId: tour.id, rid: round.id, unitId: u, strokes: next, putts: prev?.putts ?? Array(18).fill(null), updatedBy: me.uid });
+    backend.saveScore({ tourId: tour.id, rid: round.id, unitId: u, ...next, updatedBy: me.uid });
+  };
+  const at = <T,>(a: T[], v: T) => a.map((x, i) => (i === hole ? v : x));
+  const set = (u: string, v: number | null) => write(u, { ...fullOf(u), strokes: at(fullOf(u).strokes, v) });
+  const setPutts = (u: string, v: number | null) => write(u, { ...fullOf(u), putts: at(fullOf(u).putts, v) });
+  const setStat = (u: string, p: Partial<HoleStat>) => {
+    const cur = fullOf(u);
+    write(u, { ...cur, stats: at(cur.stats, { ...(cur.stats[hole] ?? {}), ...p }) });
   };
   const holeDone = (h: number) => units.every((u) => cardOf(u)[h]);
 
@@ -93,6 +103,11 @@ function ScoreForm({ tour, scores, round, group }: { tour: Tour; scores: ScoreMa
             </Text>
           </View>
         </View>
+        <Pressable onPress={() => setDetail(!detail)} style={st.detailToggle}>
+          <Icon name={detail ? 'stats-chart' : 'stats-chart-outline'} size={16} />
+          <Text style={{ flex: 1, fontFamily: F.semi, fontSize: 13, color: C.ink }}>Hole stats: putts, fairways, sand and penalties</Text>
+          <Switch value={detail} onValueChange={setDetail} trackColor={{ true: C.ink, false: C.line }} thumbColor={C.white} {...webSwitch} />
+        </Pressable>
 
         {units.map((u) => {
           const unit = M.unitOf(round, u)!;
@@ -138,6 +153,7 @@ function ScoreForm({ tour, scores, round, group }: { tour: Tour; scores: ScoreMa
                   <Icon name="add" />
                 </Pressable>
               </View>
+              {detail && g ? <HoleDetail par={par} putts={fullOf(u).putts[hole]} stat={fullOf(u).stats[hole]} setPutts={(v) => setPutts(u, v)} setStat={(p) => setStat(u, p)} /> : null}
               {g != null && (g < par - 1 || g > par + 3) && <View style={{ alignItems: 'center' }}>
                   <ScoreMark g={g} par={par} size={34} />
                 </View>}
@@ -165,6 +181,76 @@ function ScoreForm({ tour, scores, round, group }: { tour: Tour; scores: ScoreMa
   );
 }
 
+type Card = { strokes: (number | null)[]; putts: (number | null)[]; stats: (HoleStat | null)[] };
+const webSwitch = (Platform.OS === 'web' ? { activeThumbColor: C.white, activeTrackColor: C.ink } : {}) as object;
+
+const FAIRWAY: { v: Fairway; label: string; icon: IconName }[] = [
+  { v: 'left', label: 'Left', icon: 'arrow-back' },
+  { v: 'hit', label: 'Fairway', icon: 'arrow-up' },
+  { v: 'right', label: 'Right', icon: 'arrow-forward' },
+  { v: 'short', label: 'Short', icon: 'arrow-down' },
+];
+const TROUBLE: { k: 'sand' | 'water' | 'ob' | 'lost' | 'pen'; label: string }[] = [
+  { k: 'sand', label: 'Sand' },
+  { k: 'water', label: 'Water' },
+  { k: 'ob', label: 'OB' },
+  { k: 'lost', label: 'Lost ball' },
+  { k: 'pen', label: 'Other penalty' },
+];
+
+/** Optional detail for one player on one hole. */
+function HoleDetail({ par, putts, stat, setPutts, setStat }: { par: number; putts: number | null; stat: HoleStat | null; setPutts: (v: number | null) => void; setStat: (p: Partial<HoleStat>) => void }) {
+  return (
+    <View style={st.detail}>
+      <View style={st.detailRow}>
+        <Text style={st.detailLab}>PUTTS</Text>
+        <View style={{ flexDirection: 'row', gap: 6, flex: 1 }}>
+          {[0, 1, 2, 3, 4].map((n) => (
+            <Pressable key={n} onPress={() => setPutts(putts === n ? null : n)} style={[st.pill, putts === n && st.pillOn]}>
+              <Text style={[st.pillText, putts === n && { color: C.white }]}>{n === 4 ? '4+' : n}</Text>
+            </Pressable>
+          ))}
+        </View>
+      </View>
+      {par >= 4 && (
+        <View style={st.detailRow}>
+          <Text style={st.detailLab}>TEE SHOT</Text>
+          <View style={{ flexDirection: 'row', gap: 6, flex: 1 }}>
+            {FAIRWAY.map((f) => {
+              const on = stat?.fw === f.v;
+              return (
+                <Pressable key={f.v} onPress={() => setStat({ fw: on ? null : f.v })} style={[st.pill, { flex: 1 }, on && st.pillOn]}>
+                  <Icon name={f.icon} size={13} color={on ? C.white : C.ink} />
+                  <Text style={[st.pillText, { fontSize: 11 }, on && { color: C.white }]}>{f.label}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
+      )}
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+        {TROUBLE.map((t) => {
+          const n = stat?.[t.k] ?? 0;
+          return (
+            <View key={t.k} style={[st.counter, n > 0 && { borderColor: C.ink }]}>
+              <Pressable hitSlop={6} onPress={() => setStat({ [t.k]: Math.max(0, n - 1) })} disabled={!n}>
+                <Icon name="remove" size={14} color={n ? C.ink : C.faint} />
+              </Pressable>
+              <Text style={[st.pillText, { fontSize: 12 }]}>
+                {t.label}
+                {n ? ` ${n}` : ''}
+              </Text>
+              <Pressable hitSlop={6} onPress={() => setStat({ [t.k]: n + 1 })}>
+                <Icon name="add" size={14} />
+              </Pressable>
+            </View>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
 const NAMES = ['BIRDIE', 'PAR', 'BOGEY', 'DOUBLE', 'TRIPLE'];
 
 const st = StyleSheet.create({
@@ -180,5 +266,13 @@ const st = StyleSheet.create({
   numText: { fontSize: 19, fontFamily: F.heavy, color: C.ink },
   numLab: { fontSize: 7.5, fontFamily: F.semi, color: C.faint, letterSpacing: 0.6 },
   dot: { width: 30, height: 30, borderRadius: 15, borderWidth: 1, borderColor: C.line, backgroundColor: C.card, alignItems: 'center', justifyContent: 'center' },
+  detailToggle: { flexDirection: 'row', alignItems: 'center', gap: S.sm, backgroundColor: C.card, borderRadius: R.md, paddingHorizontal: S.md, paddingVertical: 8, ...shadow },
+  detail: { gap: S.sm, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: C.line, paddingTop: S.sm },
+  detailRow: { flexDirection: 'row', alignItems: 'center', gap: S.sm },
+  detailLab: { width: 62, fontSize: 9, fontFamily: F.bold, letterSpacing: 1.2, color: C.sub },
+  pill: { minWidth: 36, height: 34, paddingHorizontal: 8, borderRadius: R.pill, borderWidth: 1, borderColor: C.line, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 4 },
+  pillOn: { backgroundColor: C.ink, borderColor: C.ink },
+  pillText: { fontFamily: F.bold, fontSize: 14, color: C.ink },
+  counter: { flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: R.pill, borderWidth: 1, borderColor: C.line, paddingHorizontal: 10, height: 32 },
   footer: { flexDirection: 'row', gap: S.sm, padding: S.md, paddingBottom: S.xl, backgroundColor: C.card, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: C.line },
 });

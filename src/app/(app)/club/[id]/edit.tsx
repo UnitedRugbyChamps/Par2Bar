@@ -14,7 +14,7 @@ export default function EditClub() {
       <Stack.Screen options={{ title: 'Edit club' }} />
       <ClubForm
         key={club.id}
-        initial={{ name: club.name, about: club.about, location: club.location, founded: club.founded, logo: club.logo, cover: club.cover }}
+        initial={{ name: club.name, about: club.about, location: club.location, founded: club.founded, logo: club.logo, cover: club.cover, sponsors: club.sponsors, formats: club.formats }}
         action="Save"
         submit={async (c) => {
           await backend.updateClub(club.id, c);

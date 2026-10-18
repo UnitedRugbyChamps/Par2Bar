@@ -3,7 +3,9 @@ import { Pressable, Text, View } from 'react-native';
 
 import { fmtRel } from '@/core/engine';
 import { handicapIndex, lifetimeStats } from '@/core/handicap';
+import { lineFromRecords } from '@/core/stats';
 import type { RoundRecord } from '@/core/types';
+import { RoundStats } from './RoundStats';
 import { Card, Empty, Label, Num, P } from '@/ui/kit';
 import { C, F, S } from '@/ui/theme';
 import { fmtDate } from '@/tour/helpers';
@@ -133,6 +135,7 @@ export function StatsView({ rounds }: { rounds: RoundRecord[] }) {
           ))}
         </View>
       </Card>
+      <RoundStats s={lineFromRecords(rounds)} title="Tee to green, to date" />
     </View>
   );
 }
