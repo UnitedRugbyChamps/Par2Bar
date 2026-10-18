@@ -1,0 +1,679 @@
+<title>Par 2 Bar</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Par 2 Bar is an annual golf tour across South Africa's Southern Cape. Six tours since 2020: champions, Ryder Cup results, records and every player.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;800;900&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: the clubhouse at night. Full-bleed photo bands alternate with ink panels; scorecard-ruled tables carry the numbers. */
+:root{
+  --ink:#0c0f0d;        /* page ground, black with a fairway bias */
+  --ink-2:#141916;      /* raised panel */
+  --ink-3:#1d2420;      /* rules, inputs */
+  --line:#2a332d;
+  --cream:#f1ead9;      /* primary text */
+  --muted:#a9ad9f;      /* secondary text */
+  --gold:#cfa95a;       /* brand gold from the year book */
+  --gold-soft:#cfa95a26;
+  --jacket:#2f6b47;     /* the Green Jacket */
+  --usa:#c5463e;
+  --eur:#4f78c4;
+  --f-display:"Big Shoulders Display","Oswald","Arial Narrow",Impact,sans-serif;
+  --f-body:"Barlow","Helvetica Neue",Arial,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --gutter-l:max(16px, env(safe-area-inset-left, 0px));
+  --gutter-r:max(16px, env(safe-area-inset-right, 0px));
+  --max:1180px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{background:var(--ink);color:var(--cream);font-family:var(--f-body);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--ink)}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:2px}
+.wrap{max-width:var(--max);margin:0 auto;padding-left:var(--gutter-l);padding-right:var(--gutter-r)}
+h1,h2,h3{font-family:var(--f-display);font-weight:800;line-height:.92;letter-spacing:.005em;text-wrap:balance;margin:0;text-transform:uppercase}
+h2{font-size:clamp(44px,7vw,88px)}
+h3{font-size:clamp(26px,3vw,34px)}
+p{margin:0}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.lede{font-size:clamp(18px,1.6vw,21px);color:var(--muted);max-width:60ch}
+.num{font-variant-numeric:tabular-nums}
+
+/* nav */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:color-mix(in srgb,var(--ink) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:20px;height:64px}
+.nav img{height:30px;width:auto;display:block}
+.nav ul{display:flex;gap:4px;list-style:none;margin:0 0 0 auto;padding:0;overflow-x:auto;scrollbar-width:none}
+.nav ul::-webkit-scrollbar{display:none}
+.nav a{display:block;padding:8px 10px;text-decoration:none;font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);white-space:nowrap;border-radius:3px}
+.nav a:hover{color:var(--cream);background:var(--ink-3)}
+@media (max-width:760px){.nav .wrap{gap:10px}.nav a{padding:8px 7px;font-size:11px;letter-spacing:.06em}}
+
+/* hero */
+.hero{position:relative;overflow:hidden;background:var(--ink);isolation:isolate}
+.hero .photo{position:absolute;inset:0;z-index:-2;background:url(assets/hero.jpg) center 38%/cover no-repeat}
+.hero::after{content:"";position:absolute;inset:0;z-index:-1;background:
+  linear-gradient(90deg,var(--ink) 0%,color-mix(in srgb,var(--ink) 82%,transparent) 42%,color-mix(in srgb,var(--ink) 20%,transparent) 100%),
+  linear-gradient(0deg,var(--ink) 0%,transparent 40%)}
+.hero .wrap{padding-block:clamp(56px,10vw,120px) clamp(36px,6vw,64px)}
+.hero h1{font-size:clamp(84px,17vw,230px);font-weight:900;line-height:.82;letter-spacing:-.01em}
+.hero h1 .two{color:var(--gold);display:inline-block;transform:skewX(-8deg)}
+.hero .tag{margin-top:22px;font-family:var(--f-display);font-weight:700;font-size:clamp(22px,2.6vw,32px);text-transform:uppercase;letter-spacing:.02em;max-width:22ch;line-height:1.05}
+.hero .tag em{font-style:normal;color:var(--gold)}
+.hero .intro{margin-top:18px;max-width:46ch;color:var(--muted)}
+.ledger{margin-top:clamp(36px,6vw,64px);display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.ledger div{padding:16px 14px 14px;border-left:1px solid var(--line)}
+.ledger div:first-child{border-left:0;padding-left:0}
+.ledger b{display:block;font-family:var(--f-display);font-weight:800;font-size:clamp(36px,5vw,56px);line-height:1;color:var(--cream)}
+.ledger span{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+@media (max-width:640px){.ledger{grid-template-columns:repeat(3,minmax(0,1fr))}.ledger div:nth-child(4){border-left:0;padding-left:0}.ledger div:nth-child(n+4){border-top:1px solid var(--line)}}
+
+/* latest strip */
+.latest{background:var(--gold);color:var(--ink)}
+.latest .wrap{display:flex;flex-wrap:wrap;gap:8px 28px;align-items:baseline;padding-block:14px}
+.latest b{font-family:var(--f-display);font-weight:800;font-size:22px;text-transform:uppercase;letter-spacing:.02em}
+.latest span{font-family:var(--f-mono);font-size:13px}
+.latest a{margin-left:auto;font-family:var(--f-mono);font-size:13px;font-weight:600}
+
+section{padding-block:clamp(64px,9vw,120px)}
+section+section{border-top:1px solid var(--line)}
+.head{display:grid;gap:18px;margin-bottom:clamp(32px,5vw,56px)}
+
+/* story */
+.story{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(28px,5vw,72px);align-items:start}
+.story .copy{display:grid;gap:18px;max-width:62ch;min-width:0}
+.story .copy .drop::first-letter{font-family:var(--f-display);font-weight:900;font-size:4.2em;float:left;line-height:.8;margin:6px 10px 0 0;color:var(--gold)}
+.story blockquote{margin:10px 0 0;font-family:var(--f-display);font-weight:700;text-transform:uppercase;font-size:clamp(28px,3.4vw,40px);line-height:1;color:var(--gold)}
+.story .pics{display:grid;grid-template-columns:1fr 1fr;gap:10px;min-width:0}
+.story .pics img{width:100%;height:100%;object-fit:cover;display:block;border-radius:2px}
+.story .pics .wide{grid-column:1/-1;aspect-ratio:16/10}
+.story .pics .sq{aspect-ratio:1}
+@media (max-width:860px){.story{grid-template-columns:1fr}}
+
+/* tour selector */
+.tickets{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-bottom:28px}
+.ticket{all:unset;cursor:pointer;display:grid;gap:4px;padding:14px 14px 12px;border:1px solid var(--line);border-radius:3px;background:var(--ink-2);transition:border-color .2s,background .2s}
+.ticket:hover{border-color:var(--gold)}
+.ticket:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.ticket b{font-family:var(--f-display);font-weight:900;font-size:40px;line-height:.9}
+.ticket span{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.ticket[aria-selected="true"]{background:var(--gold);border-color:var(--gold);color:var(--ink)}
+.ticket[aria-selected="true"] span{color:var(--ink)}
+@media (max-width:760px){.tickets{grid-template-columns:repeat(3,minmax(0,1fr))}.ticket b{font-size:32px}}
+
+.tour{display:grid;gap:clamp(28px,4vw,44px)}
+.tour-top{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(24px,4vw,56px);align-items:end}
+.tour-top h3{font-size:clamp(44px,6vw,76px)}
+.tour-top .meta{margin-top:12px;font-family:var(--f-mono);font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 18px}
+.tour-top .blurb{margin-top:18px;color:var(--muted);max-width:56ch}
+.tour-top figure{margin:0;min-width:0}
+.tour-top figure img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;border-radius:2px}
+.tour-top figcaption{margin-top:8px;font-size:13px;color:var(--muted)}
+.nophoto{aspect-ratio:16/10;display:grid;place-items:center;border:1px dashed var(--line);border-radius:2px;color:var(--muted);font-family:var(--f-mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;text-align:center;padding:20px}
+@media (max-width:860px){.tour-top{grid-template-columns:1fr}}
+
+.outcomes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.outcomes>div{padding:18px 20px;background:var(--ink-2);border-left:1px solid var(--line);min-width:0}
+.outcomes>div:first-child{border-left:0;background:linear-gradient(135deg,var(--jacket),color-mix(in srgb,var(--jacket) 55%,var(--ink)))}
+.outcomes small{display:block;font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.outcomes>div:first-child small{color:color-mix(in srgb,var(--cream) 75%,transparent)}
+.outcomes strong{display:block;margin-top:6px;font-family:var(--f-display);font-weight:800;font-size:clamp(26px,3vw,34px);text-transform:uppercase;line-height:1}
+.outcomes em{display:block;margin-top:6px;font-style:normal;font-size:14px;color:var(--muted)}
+@media (max-width:700px){.outcomes{grid-template-columns:1fr}.outcomes>div{border-left:0;border-top:1px solid var(--line)}.outcomes>div:first-child{border-top:0}}
+
+.days{display:flex;flex-wrap:wrap;gap:8px}
+.day{display:flex;align-items:baseline;gap:10px;padding:8px 14px;border:1px solid var(--line);border-radius:40px;font-size:15px}
+.day i{font-style:normal;font-family:var(--f-mono);font-size:11px;color:var(--gold);letter-spacing:.1em}
+
+.cols{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:clamp(24px,4vw,48px);align-items:start}
+@media (max-width:900px){.cols{grid-template-columns:minmax(0,1fr)}}
+.cols>div{grid-template-columns:minmax(0,1fr)}.cols>div>*{min-width:0}
+.tour{grid-template-columns:minmax(0,1fr)}
+.panel-title{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.panel-title span{color:var(--muted);letter-spacing:.04em;text-transform:none}
+
+/* scorecard table */
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:3px}
+table.card{border-collapse:collapse;width:100%;font-family:var(--f-mono);font-size:13.5px;font-variant-numeric:tabular-nums;min-width:520px}
+.card th,.card td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}
+.card th{font-weight:500;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--ink-2)}
+.card td.name,.card th.name{text-align:left;font-family:var(--f-body);font-size:15px}
+.card td.pos{color:var(--muted);width:38px}
+.card tr:last-child td{border-bottom:0}
+.card tr.win td{background:var(--gold-soft)}
+.card tr.win td.name{font-weight:600}
+.card td.total{font-weight:600;color:var(--cream)}
+.card td.low{color:var(--gold);font-weight:600}
+.card td.dnp{color:var(--muted)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:1px}
+.dot.usa{background:var(--usa)}.dot.eur{background:var(--eur)}
+.note{margin-top:10px;font-size:13px;color:var(--muted)}
+
+.highlight{padding:22px;border:1px solid var(--line);border-radius:3px;background:var(--ink-2);display:grid;gap:12px}
+.highlight h4{margin:0;font-family:var(--f-display);font-weight:800;font-size:26px;text-transform:uppercase;line-height:1}
+.highlight p{color:var(--muted);font-size:16px}
+.quote{font-family:var(--f-display);font-weight:700;font-size:28px;line-height:1;text-transform:uppercase;color:var(--gold);padding-top:4px}
+
+.teams{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.team{border:1px solid var(--line);border-radius:3px;padding:14px 16px;min-width:0}
+.team h5{margin:0 0 8px;font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;display:flex;justify-content:space-between}
+.team.usa{border-top:3px solid var(--usa)}.team.eur{border-top:3px solid var(--eur)}
+.team ul{list-style:none;margin:0;padding:0;font-size:15px;display:grid;gap:3px}
+.matches{margin-top:10px;display:grid;gap:14px}
+.matches h6{margin:0 0 6px;font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.match{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:center;font-size:14px;padding:6px 0;border-bottom:1px solid var(--line)}
+.match .r{font-family:var(--f-mono);font-size:12px;padding:2px 8px;border-radius:20px;background:var(--ink-3);color:var(--cream);white-space:nowrap}
+.match .w{color:var(--cream);font-weight:600}
+.match .l{color:var(--muted)}
+.match>span:last-child{text-align:right}
+
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:10px}
+.gallery img{width:100%;aspect-ratio:3/2;object-fit:cover;display:block;border-radius:2px}
+
+/* green jackets */
+.jackets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.jk{position:relative;padding:22px 22px 20px;border-radius:3px;background:linear-gradient(160deg,color-mix(in srgb,var(--jacket) 70%,var(--ink)),var(--ink-2) 75%);border:1px solid color-mix(in srgb,var(--jacket) 60%,var(--line));display:grid;gap:6px;min-width:0;overflow:hidden}
+.jk .yr{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;color:var(--gold)}
+.jk .who{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,3.2vw,40px);text-transform:uppercase;line-height:.95}
+.jk .how{font-size:15px;color:var(--muted)}
+.jk .ver{position:absolute;right:14px;top:6px;font-family:var(--f-display);font-weight:900;font-size:72px;line-height:1;color:color-mix(in srgb,var(--cream) 7%,transparent);pointer-events:none}
+@media (max-width:900px){.jackets{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.jackets{grid-template-columns:1fr}}
+.multi{margin-top:18px;font-size:15px;color:var(--muted)}
+.multi b{color:var(--cream)}
+
+/* ryder cup */
+.cup{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(28px,5vw,64px);align-items:center}
+@media (max-width:860px){.cup{grid-template-columns:1fr}}
+.tally{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;text-align:center;gap:10px}
+.tally b{font-family:var(--f-display);font-weight:900;font-size:clamp(96px,14vw,160px);line-height:.85}
+.tally .u b{color:var(--usa)}.tally .e b{color:var(--eur)}
+.tally small{display:block;margin-top:8px;font-family:var(--f-mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.tally .v{font-family:var(--f-display);font-weight:700;font-size:28px;color:var(--muted)}
+.cuprows{display:grid;gap:10px}
+.cr{display:grid;grid-template-columns:52px minmax(0,1fr) 120px;gap:14px;align-items:center}
+.cr .y{font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+.bar{height:30px;display:flex;border-radius:2px;overflow:hidden;background:var(--ink-3);font-family:var(--f-mono);font-size:12px;font-weight:600}
+.bar .u{background:var(--usa);display:flex;align-items:center;padding-left:8px}
+.bar .e{background:var(--eur);display:flex;align-items:center;justify-content:flex-end;padding-right:8px;margin-left:auto}
+.bar .mid{align-self:center;padding:0 10px;color:var(--muted);font-weight:400}
+.cr .res{font-size:14px}
+.cr .res b{font-weight:600}
+@media (max-width:520px){.cr{grid-template-columns:42px minmax(0,1fr)}.cr .res{grid-column:2;margin-top:-4px;font-size:13px;color:var(--muted)}}
+
+/* records */
+.records{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.rec{background:var(--ink);padding:20px 20px 18px;display:grid;gap:6px;align-content:start}
+.rec small{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.rec b{font-family:var(--f-display);font-weight:800;font-size:44px;line-height:.9;color:var(--gold)}
+.rec span{font-size:15px}
+.rec i{font-style:normal;font-size:13px;color:var(--muted)}
+
+/* players */
+.ptools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+.ptools input{flex:1 1 240px;min-width:0;background:var(--ink-2);border:1px solid var(--line);color:var(--cream);font:inherit;font-size:16px;padding:11px 14px;border-radius:3px}
+.ptools input::placeholder{color:var(--muted)}
+.seg{display:flex;border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.seg button{all:unset;cursor:pointer;padding:10px 14px;font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--cream);color:var(--ink)}
+.seg button:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.yrs{display:inline-flex;gap:3px}
+.yrs i{width:22px;height:18px;border-radius:2px;background:var(--ink-3);font-style:normal;font-size:10px;display:grid;place-items:center;color:color-mix(in srgb,var(--muted) 45%,transparent)}
+.yrs i.on{background:color-mix(in srgb,var(--gold) 30%,var(--ink-3));color:var(--cream)}
+.yrs i.w{background:var(--jacket);color:var(--cream)}
+.badge{display:inline-block;font-family:var(--f-mono);font-size:11px;padding:2px 7px;border-radius:20px;margin-left:6px;vertical-align:2px}
+.badge.j{background:var(--jacket);color:var(--cream)}
+.nick{color:var(--muted);font-style:italic}
+
+/* courses */
+.courses{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:12px}
+.course{border:1px solid var(--line);border-radius:3px;padding:20px;display:grid;gap:12px;background:var(--ink-2);min-width:0}
+.course h4{margin:0;font-family:var(--f-display);font-weight:800;font-size:30px;text-transform:uppercase;line-height:.95}
+.course .where{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.course ol{margin:0;padding:0;list-style:none;display:grid;gap:4px;counter-reset:c}
+.course li{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:8px;font-size:15px;counter-increment:c}
+.course li::before{content:counter(c);font-family:var(--f-mono);font-size:12px;color:var(--gold);padding-top:2px}
+.course li b{font-family:var(--f-mono);font-weight:600;font-variant-numeric:tabular-nums}
+.course .foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-family:var(--f-mono);font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
+
+footer{border-top:1px solid var(--line);padding-block:48px calc(48px + env(safe-area-inset-bottom,0px))}
+footer .wrap{display:flex;flex-wrap:wrap;gap:24px;align-items:center;justify-content:space-between}
+footer img{height:46px;width:auto}
+footer p{font-size:14px;color:var(--muted);max-width:60ch}
+</style>
+
+<nav class="nav" aria-label="Sections">
+  <div class="wrap">
+    <a href="#top" aria-label="Par 2 Bar home" style="padding:0;background:none"><img src="assets/logo.png" alt="Par 2 Bar"></a>
+    <ul>
+      <li><a href="#tours">Tours</a></li>
+      <li><a href="#jackets">Green Jackets</a></li>
+      <li><a href="#cup">Ryder Cup</a></li>
+      <li><a href="#records">Records</a></li>
+      <li><a href="#players">Players</a></li>
+      <li><a href="#courses">Courses</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="photo" role="img" aria-label="Pinnacle Point golf course on the cliffs above the Indian Ocean"></div>
+  <div class="wrap">
+    <p class="eyebrow">Est. 2020 · Southern Cape, South Africa</p>
+    <h1>Par <span class="two">2</span><br>Bar</h1>
+    <p class="tag">It’s not just a game, <em>it’s a way of life.</em></p>
+    <p class="intro">An annual golf tour among friends. Three days, a Green Jacket for the champion, a Ryder Cup between Team USA and Team Europe, and stories that get better with every retelling.</p>
+    <div class="ledger" id="ledger"></div>
+  </div>
+</header>
+
+<div class="latest">
+  <div class="wrap" id="latest"></div>
+</div>
+
+<section id="story">
+  <div class="wrap story">
+    <div class="copy">
+      <p class="eyebrow">Our story</p>
+      <h2>Hacking it round since 2020</h2>
+      <p class="drop">Back in 2020, when most plans were being cancelled and the world had slowed to a crawl, we did the opposite. A few of us packed up our clubs, filled the cooler box and made our way to the Garden Route. That first weekend in Plettenberg Bay was spontaneous and a little chaotic, but it had everything we needed: golf, familiar faces and a break from the norm.</p>
+      <p>There was no real structure and no big vision. Just three days of hacking it around the course, lighting a small braai, and realising we were onto something worth repeating. The following years brought more players, better preparation and a clearer sense of tradition. The format sharpened, the fields grew and the legend of the tour took shape.</p>
+      <p>Today Par 2 Bar is a community of young South Africans who share a love of golf, travel and each other’s company. We play to win, but we also play for the laughs, the late nights around the fire, and the early tee times that follow them.</p>
+      <blockquote>“You don’t lose balls, you donate them to nature.”</blockquote>
+    </div>
+    <div class="pics">
+      <img class="wide" src="assets/about-group.jpg" alt="The Par 2 Bar field in red and navy on the course">
+      <img class="sq" src="assets/braai.jpg" alt="The braai after a round">
+      <img class="sq" src="assets/swing.jpg" alt="A player watching his tee shot">
+    </div>
+  </div>
+</section>
+
+<section id="tours">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">The tours</p>
+      <h2>Six tours, one tradition</h2>
+      <p class="lede">From the cliffs of Pinnacle Point to the valleys of Plett. Pick a tour for its courses, its champion, its leaderboard and the moment everyone still talks about.</p>
+    </div>
+    <div class="tickets" role="tablist" aria-label="Tours" id="tickets"></div>
+    <div class="tour" id="tour" role="tabpanel"></div>
+  </div>
+</section>
+
+<section id="jackets">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">Roll of honour</p>
+      <h2>The Green Jackets</h2>
+      <p class="lede">One champion per tour, one jacket. Only one man has won it twice.</p>
+    </div>
+    <div class="jackets" id="jk"></div>
+    <p class="multi" id="multi"></p>
+  </div>
+</section>
+
+<section id="cup">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">Team match play</p>
+      <h2>The Ryder Cup</h2>
+      <p class="lede">Every tour splits the field into Team USA and Team Europe. Fourballs and singles, points on the board, and bragging rights until next year.</p>
+    </div>
+    <div class="cup">
+      <div class="tally" id="tally"></div>
+      <div class="cuprows" id="cuprows"></div>
+    </div>
+  </div>
+</section>
+
+<section id="records">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">The record book</p>
+      <h2>Records &amp; milestones</h2>
+      <p class="lede">The marks to beat. Scoring records come from every recorded scorecard from 2020 to 2025; the rest come from the five-year anniversary book.</p>
+    </div>
+    <div class="records" id="recs"></div>
+  </div>
+</section>
+
+<section id="players">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">Everyone who’s teed it up</p>
+      <h2>The players</h2>
+      <p class="lede">Every name that has played a Par 2 Bar tour, with the years they played and their scoring average across every recorded gross round.</p>
+    </div>
+    <div class="ptools">
+      <label class="sr" for="q" style="position:absolute;left:-9999px">Search players</label>
+      <input id="q" type="search" placeholder="Search a player" autocomplete="off">
+      <div class="seg" role="group" aria-label="Sort players">
+        <button type="button" data-sort="avg" aria-pressed="true">Scoring avg</button>
+        <button type="button" data-sort="tours" aria-pressed="false">Tours</button>
+        <button type="button" data-sort="name" aria-pressed="false">A–Z</button>
+      </div>
+    </div>
+    <div class="scroll"><table class="card" id="ptable"></table></div>
+    <p class="note">Gold years are tours played; green marks a Green Jacket. Averages use gross 18-hole scores from the tour scorecards.</p>
+  </div>
+</section>
+
+<section id="courses">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">Where we play</p>
+      <h2>The courses</h2>
+      <p class="lede">Nine courses along the Garden Route and the Southern Cape, ranked by the best gross rounds the tour has posted on each.</p>
+    </div>
+    <div class="courses" id="clist"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <img src="assets/logo.png" alt="Par 2 Bar">
+    <p>Par 2 Bar · Est. 2020 · Southern Cape, South Africa. Results compiled from the tour scorecards and the five-year anniversary book.</p>
+  </div>
+</footer>
+
+<script>
+const P = {
+  KW:{n:"Kieran Witthuhn"}, JG:{n:"James Godlonton"}, SVR:{n:"Stefan Van Rooyen"}, TJ:{n:"TJ Stergianos",full:"Theo-John Stergianos"},
+  JS:{n:"Jordan Sacks"}, RF:{n:"Richard Friend"}, CTD:{n:"Charlie Thornton-Dibb"}, GH:{n:"Grant Haines"},
+  CJ:{n:"Conor Jenkins"}, MB:{n:"Murray Bester"}, BY:{n:"Bradley Young"}, AJ:{n:"Andrew Jackson",nick:"Dagwood"},
+  JW:{n:"Joshua Warner"}, RD:{n:"Richard Duke"}, MF:{n:"Micha Feher"}, MJ:{n:"Matthew Jackson"}, AM:{n:"Aiden Mason"},
+  ST:{n:"Samuel Taskes"}, SJ:{n:"Shaun Joubert"}, WB:{n:"Werner Biesenbach"}, KK:{n:"Kyle Karsten"}, JD:{n:"Jonty Doyle"},
+  ADV:{n:"Andrew De Villiers"}, SM:{n:"Stephen Mathew"}, HC:{n:"Hayden Canham"}, GS:{n:"Gareth Shaw"}, MFe:{n:"Miguel Ferrão"},
+  DT:{n:"Daniel Tooley"}, CK:{n:"Chris Kode"}, RW:{n:"Ryan Wild"}, MC:{n:"Matthew Cilliers"}, KD:{n:"Kean Dry"}, TM:{n:"Tim McKernan"}
+};
+const COURSES = {
+  "Pezula":{full:"Pezula Championship Course",where:"Knysna"},
+  "Simola":{full:"Simola Golf Estate",where:"Knysna"},
+  "Goose Valley":{full:"Goose Valley Golf Club",where:"Plettenberg Bay"},
+  "Plett CC":{full:"Plettenberg Bay Country Club",where:"Plettenberg Bay"},
+  "Pinnacle Point":{full:"Pinnacle Point Golf Resort",where:"Mossel Bay"},
+  "Kingswood":{full:"Kingswood Golf Estate",where:"George"},
+  "George":{full:"George Golf Club",where:"George"},
+  "Mossel Bay":{full:"Mossel Bay Golf Club",where:"Mossel Bay"},
+  "Oubaai":{full:"Oubaai Golf Club",where:"Herolds Bay, George"}
+};
+
+/* Each tour: courses in play order, gross[player] = scores per course (null = did not play).
+   board: final standings as the tour scored them. */
+const TOURS = [
+ {v:"1.0",year:2020,name:"The Debut Tour",region:"Plettenberg Bay",dates:"Thu 24 – Sat 26 September 2020",
+  courses:["Pezula","Simola","Goose Valley"],
+  formats:"Individual stableford, individual match play and team match play (Ryder Cup format) every round.",
+  blurb:"Plettenberg Bay hosted the first ever Par 2 Bar. The group arrived with more enthusiasm than preparation: swings were rusty, putts were wild, and there were no scoring apps or proper warm-ups. What we did have was big egos, world-class courses and enough banter to carry us through every shank, duff and unexpected par.",
+  champ:"KW", runner:"JG", champNote:"Opened with 81 at Pezula and never looked back.",
+  cup:{usa:10,eur:8,winner:"usa",note:"USA 10 – 8 Europe"},
+  teams:{usa:["RF","TJ","CTD","KW*"],eur:["GH","JG*","JS","SVR"]},
+  boardLabel:"Net total", boardNote:"Lowest net total wins.", lowWins:true,
+  board:[["KW",37],["JG",46],["SVR",48],["TJ",53],["JS",67],["RF",69],["CTD",71],["GH",74]],
+  gross:{KW:[81,82,90],CTD:[90,91,106],SVR:[84,89,91],GH:[92,93,105],JS:[89,92,102],TJ:[81,93,95],JG:[85,86,91],RF:[94,94,97]},
+  matches:[
+   ["Day 1 · Singles",[["JS","A/S","RF"],["KW","3&2","SVR"],["JG","1UP","TJ"],["GH","4&3","CTD"]]],
+   ["Day 1 · Fourballs",[["RF+KW","2&1","JS+SVR"],["JG+GH","4&3","TJ+CTD"]]],
+   ["Day 2 · Singles",[["JS","3&2","RF"],["KW","2&1","SVR"],["TJ","4&3","JG"],["GH","1UP","CTD"]]],
+   ["Day 2 · Fourballs",[["KW+CTD","A/S","GH+SVR"],["TJ+RF","3&2","JG+JS"]]],
+   ["Day 3 · Singles",[["RF","4&3","JS"],["KW","1UP","SVR"],["JG","A/S","TJ"],["GH","1UP","CTD"]]],
+   ["Day 3 · Fourballs",[["RF+CTD","4&3","GH+JS"],["TJ+KW","A/S","JG+SVR"]]]
+  ],
+  highlight:{title:"The 40-footer",who:"James Godlonton",text:"Three down with a few holes to play against TJ, James clawed his way back to arrive at the 18th green one down. Facing a long, breaking putt from nearly 40 feet, he drained it dead centre to halve the match. A moment worthy of the final hole on the final day."},
+  quote:"You don’t lose balls, you donate them to nature.",
+  photos:[["2020-group.jpg","Left to right: K. Witthuhn, S. Van Rooyen, TJ Stergianos, J. Sacks, R. Friend, G. Haines, C. Thornton-Dibb, J. Godlonton."],["2020-four.jpg","On tour, 2020."],["2020-highlight.jpg","James Godlonton, Goose Valley 2020."]]
+ },
+ {v:"2.0",year:2021,name:"The George Tour",region:"George",dates:"Thu 23 – Sat 25 September 2021",
+  courses:["Pinnacle Point","Kingswood","George"],
+  formats:"Individual stableford, individual match play and team match play (Ryder Cup format) every round.",
+  blurb:"The second edition took us to the golfing heart of the Garden Route. Pinnacle Point, Kingswood and George Golf Club were as breathtaking as they were unforgiving. Still no score tracking, no rangefinders, and no clear idea who was leading most of the time. But the tour had grown and the merch had levelled up.",
+  champ:"JG", runner:"CJ", champNote:"Level on 104 points with Conor Jenkins and took the jacket.",
+  cup:{usa:10,eur:10,winner:"usa",note:"Tied 10 – 10 · USA won the 3 v 3 playoff"},
+  teams:{usa:["MB","MF","CJ","BY"],eur:["RD","JG","AJ","JW"]},
+  boardLabel:"Points", boardNote:"Highest points total wins. Handicaps were assumed this year.", lowWins:false,
+  board:[["JG",104],["CJ",104],["MB",96],["BY",95],["AJ",94],["JW",92],["RD",82],["MF",77]],
+  gross:{JG:[91,88,81],CJ:[102,96,92],MB:[104,91,91],BY:[92,87,94],AJ:[103,90,89],JW:[92,80,84],RD:[108,100,98],MF:[106,108,99]},
+  highlight:{title:"Putts in the dark",who:"Andrew “Dagwood” Jackson & Micha Feher",text:"With the light fading and Europe needing the last putt of regulation to avoid defeat, Dagwood stood over a slippery 10-footer in near darkness and drained it. Level at the death, the Cup went to a 3 v 3 playoff hole, where Micha Feher posted the lowest score of the group to win it for Team USA."},
+  quote:"A good drive is a temporary state of mind.",
+  photos:[["2021-group.jpg","Left to right: A. Jackson, B. Young, J. Warner, M. Feher, D. Martin, J. Godlonton, M. Bester, R. Duke, C. Jenkins."],["2021-george.jpg","George, 2021."],["2021-highlight.jpg","Andrew Jackson & Micha Feher, George 2021."]]
+ },
+ {v:"3.0",year:2022,name:"The Garden Route Tour",region:"Plettenberg Bay & Knysna",dates:"Thu 28 April – Sun 1 May 2022",
+  courses:["Goose Valley","Pezula","Plett CC","Simola"],
+  formats:"Individual match play points over four rounds. No Ryder Cup this year.",
+  blurb:"Back on familiar turf, with Turtle Creek in Goose Valley as mission control and the unofficial headquarters of bad decisions and good memories. Some veterans sat out, a few new faces joined, and the youngest recruit yet put the rest of the field to shame.",
+  champ:"JG", runner:"ST", champNote:"Back-to-back. Won by a single point after a late-night audit.",
+  cup:null,
+  teams:null,
+  boardLabel:"Points", boardNote:"Highest match play points total wins. Joshua Warner joined for the last two rounds.", lowWins:false,
+  board:[["JG",123],["ST",122],["SVR",117],["MJ",117],["RD",116],["AM",107],["JS",106],["JW",104]],
+  gross:{JG:[88,94,88,92],MJ:[90,96,101,103],AM:[97,90,98,100],JS:[91,93,102,94],SVR:[92,94,91,99],RD:[94,102,95,102],ST:[83,94,94,91],JW:[null,null,80,81]},
+  highlight:{title:"The bookies’ audit",who:"James Godlonton & Samuel Taskes",text:"James and Sam finished four rounds locked on points. It took a late-night audit from the tour bookies to find a one-point error in Sam’s card, handing James his second Green Jacket and making him Par 2 Bar’s first back-to-back champion. The same week, Nugget reportedly stepped up eight or nine beers deep and announced, “Where’s the bank? I’m ready to drop some bombs.” Every drive was flushed."},
+  quote:"The fairway is an idea, not a destination.",
+  photos:[["2022-group.jpg","Left to right: A. Mason, S. Van Rooyen, M. Jackson, J. Sacks, J. Warner, J. Godlonton, S. Taskes, R. Duke."],["2022-squad.jpg","The 2022 field."]]
+ },
+ {v:"4.0",year:2023,name:"The Mossel Bay Tour",region:"Mossel Bay & George",dates:"Sat 18 – Mon 20 March 2023",
+  courses:["George","Mossel Bay","Kingswood"],
+  formats:"Individual stableford and individual match play every round, with fourball team matches.",
+  blurb:"The tour’s first real taste of elite golf. For the first time the field featured a sub-5 handicap, and he went on to make history. The clothing got sharper, the golf a little more serious, and the hangovers somehow heavier.",
+  champ:"JD", runner:"WB", champNote:"Came from eight shots back on the final nine with a 74.",
+  cup:{usa:2.5,eur:3.5,winner:"eur",note:"Europe 3.5 – 2.5 USA · Europe’s first Cup"},
+  teams:{usa:["ADV","JD","CJ","KK"],eur:["WB","JG","SJ","SVR"]},
+  boardLabel:"Stableford", boardNote:"Stableford points shown against par. Lowest wins.", lowWins:true,
+  board:[["JD",6],["WB",6],["JG",8],["ADV",8],["KK",11],["CJ",14],["SJ",15],["SVR",21]],
+  gross:{JG:[85,83,87],SVR:[101,95,97],CJ:[87,92,89],SJ:[95,89,93],WB:[83,77,84],KK:[87,87,90],JD:[85,79,74],ADV:[94,89,94]},
+  matches:[
+   ["Day 1 · George · Fourballs",[["WB+SVR","A/S","JD+ADV"],["JG+SJ","2UP","CJ+KK"]]],
+   ["Day 2 · Mossel Bay · Fourballs",[["JG+SVR","W","JD+KK"],["WB+SJ","W","CJ+ADV"]]],
+   ["Day 3 · Kingswood · Fourballs",[["JD+CJ","4&3","WB+JG"],["KK+ADV","1UP","SVR+SJ"]]]
+  ],
+  highlight:{title:"Water on 18",who:"Jonty Doyle",text:"Heading into the final nine at Kingswood, Werner held an eight-shot lead and looked untouchable. Jonty, trailing quietly, produced the round of the tournament, a 74, and chipped away hole by hole. On the 18th, a deceptively tricky par 3, Werner found the water. Jonty needed only a bogey and closed it out."},
+  quote:"If you can’t find your ball, find your drink.",
+  photos:[["2023-group.jpg","Left to right: K. Karsten, C. Jenkins, J. Doyle, J. Godlonton, W. Biesenbach, S. Van Rooyen, S. Joubert, A. De Villiers."],["2023-cart.jpg","Jonty Doyle, George 2023."]]
+ },
+ {v:"5.0",year:2024,name:"The Plettenberg Bay Tour",region:"Plettenberg Bay & Knysna",dates:"Fri 20 – Sun 22 December 2024",
+  courses:["Simola","Pezula","Goose Valley"],
+  formats:"Individual stableford and match play all three days, fourball team matches on days one and two, Ryder Cup singles on day three.",
+  blurb:"Our biggest field yet, back on the Garden Route for three days of theatre. Early leads came and went, the wind played its part, and the finish summed up the tour: unpredictable, competitive and brilliant.",
+  champ:"SM", runner:"WB", champNote:"Twelve back after two rounds, then 84 in the wind at Goose Valley.",
+  cup:{usa:4.5,eur:7.5,winner:"eur",note:"Europe 7.5 – 4.5 USA"},
+  teams:{usa:["HC","RD","SM","GS","SVR","KW"],eur:["WB","MFe","JG","AJ","JS","DT"]},
+  boardLabel:"Stableford", boardNote:"Stableford points shown against par. Lowest wins.", lowWins:true,
+  board:[["SM",3],["WB",4],["KW",5],["RD",6],["SVR",6],["AJ",10],["HC",11],["JS",11],["JG",14],["GS",15],["MFe",16],["DT",26]],
+  rounds:{SM:[9,-2,-4],WB:[-3,6,1],KW:[2,2,1],RD:[9,10,-13],SVR:[6,3,-3],AJ:[8,7,-5],HC:[8,3,0],JS:[8,9,-6],JG:[3,15,-4],GS:[10,-4,9],MFe:[14,-4,6],DT:[13,4,9]},
+  gross:{WB:[79,85,83],MFe:[110,99,105],SM:[96,88,84],RD:[101,106,88],JG:[87,100,88],DT:[97,94,101],KW:[82,83,83],HC:[95,94,92],JS:[94,100,89],AJ:[95,98,89],GS:[96,87,96],SVR:[96,96,91]},
+  matches:[
+   ["Day 1 · Simola · Fourballs",[["JG+DT","2&1","KW+HC"],["WB+MFe","A/S","RD+SM"],["JS+AJ","1UP","GS+SVR"]]],
+   ["Day 2 · Pezula · Fourballs",[["HC+GS","3&1","JS+DT"],["SVR+SM","6&4","WB+JG"],["AJ+MFe","2UP","KW+RD"]]],
+   ["Day 3 · Goose Valley · Singles",[["WB","1UP","KW"],["MFe","3&1","GS"],["AJ","2&1","SM"],["SVR","4&3","DT"],["RD","5&3","JG"],["JS","6&5","HC"]]]
+  ],
+  highlight:{title:"From twelve back",who:"Stephen Mathew",text:"Werner opened with 79 at Simola and was still five clear going into the final day, three under and in control. Twelve shots back and out of the picture was Stevie, until he wasn’t. He produced an 84 on a blustery afternoon at Goose Valley. Werner and Kieran both had chip-ins on 18 to force a playoff and both came heartbreakingly close. Stevie finished +3, one clear of Werner and two ahead of Kieran."},
+  quote:"Play fast, swing hard, and lie convincingly.",
+  photos:[["2024-group.jpg","Back: D. Martin, J. Sacks, H. Canham, M. Ferrão, A. Jackson, R. Duke, W. Biesenbach. Middle: S. Van Rooyen, D. Tooley, K. Witthuhn, J. Godlonton, G. Shaw. Front: S. Mathew."],["2024-squad.jpg","The Ryder Cup teams, 2024."]]
+ },
+ {v:"6.0",year:2025,name:"The Sixth Tour",region:"Mossel Bay & George",dates:"Fri 19 – Sun 21 December 2025",
+  courses:["Pinnacle Point","Oubaai","George"],
+  formats:"Individual stableford over three rounds, with singles match play on the final day.",
+  blurb:"Sixteen players, the biggest field in tour history, and three of the Southern Cape’s best: the cliffs of Pinnacle Point, Ernie Els’s Oubaai and the parkland of George Golf Club. Jonty Doyle went round George in 75 with a front nine of 35, but the jacket went to the man who kept his card cleanest against his handicap.",
+  champ:"RW", runner:"AJ", champNote:"Finished +1, six clear, after a −5 final round at George.",
+  cup:{pending:true,note:"Team result not in the scorecard export"},
+  teams:null,
+  roster:{MFe:21,CK:15,JS:14,TJ:15,WB:8,RW:27,KW:7,CJ:13,MC:23,JD:2,AJ:18,RD:21,JG:12,SM:13,KD:1,TM:11},
+  boardLabel:"Stableford", boardNote:"Stableford points shown against par. Lowest wins.", lowWins:true,
+  board:[["RW",1],["AJ",7],["JD",9],["MFe",10],["RD",10],["CJ",11],["KW",11],["WB",11],["TM",12],["CK",14],["TJ",20],["KD",21],["JG",22],["SM",22],["JS",24],["MC",32]],
+  rounds:{RW:[5,1,-5],AJ:[4,2,1],JD:[10,2,-3],MFe:[7,2,1],RD:[12,1,-3],CJ:[5,4,2],KW:[1,3,7],WB:[10,3,-2],TM:[3,2,7],CK:[7,10,-3],TJ:[11,5,4],KD:[10,7,4],JG:[7,7,8],SM:[17,5,0],JS:[5,14,5],MC:[17,12,3]},
+  gross:{JD:[84,81,75],KD:[83,84,80],KW:[80,84,87],WB:[90,88,81],TM:[86,88,91],CJ:[90,94,91],AJ:[94,95,92],JG:[91,95,96],CK:[94,102,87],SM:[102,95,89],TJ:[98,96,95],JS:[91,103,95],MFe:[101,98,95],RD:[105,99,93],RW:[104,102,93],MC:[112,112,101]},
+  highlight:{title:"The 75 at George",who:"Jonty Doyle",text:"On the final day at George Golf Club, Jonty turned in 35, the best nine holes in tour history, and came home in 40 for a 75. Kean Dry, playing off a one handicap in his first tour, signed for 80 in the same round. Both were the best gross rounds of the week, but stableford against handicap decides the jacket."},
+  quote:null,
+  photos:[]
+ }
+];
+
+const nm = k => P[k] ? P[k].n : k;
+const nameHtml = k => { const p=P[k]; return p.nick ? `${p.n} <span class="nick">“${p.nick}”</span>` : p.n; };
+const sgn = v => v===0 ? "E" : (v>0 ? "+"+v : "−"+Math.abs(v));
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------- derived stats ---------- */
+const rounds=[]; // {p,year,course,score}
+TOURS.forEach(t=>Object.entries(t.gross).forEach(([p,arr])=>arr.forEach((s,i)=>{ if(s!=null) rounds.push({p,year:t.year,course:t.courses[i],score:s}); })));
+const players={};
+TOURS.forEach(t=>{ t.board.forEach(([p])=>{ (players[p]??={k:p,years:[],wins:[],runs:[]}).years.push(t.year); });
+  players[t.champ].wins.push(t.year); players[t.runner].runs.push(t.year); });
+Object.values(players).forEach(pl=>{ const r=rounds.filter(x=>x.p===pl.k); pl.n=r.length; pl.avg=r.reduce((a,b)=>a+b.score,0)/r.length;
+  pl.best=r.reduce((a,b)=>b.score<a.score?b:a,r[0]); pl.sub90=r.filter(x=>x.score<90).length;
+  pl.cup=0; pl.cupOf=0;
+  TOURS.forEach(t=>{ if(!t.cup||t.cup.pending||!t.teams) return; const side=t.teams.usa.some(x=>x.replace("*","")===pl.k)?"usa":t.teams.eur.some(x=>x.replace("*","")===pl.k)?"eur":null; if(side){pl.cupOf++; if(t.cup.winner===side) pl.cup++;} });
+});
+const allCourses=[...new Set(TOURS.flatMap(t=>t.courses))];
+
+/* ---------- hero ledger + latest ---------- */
+document.getElementById("ledger").innerHTML=[
+  [TOURS.length,"Tours"],[Object.keys(players).length,"Players"],[allCourses.length,"Courses"],[rounds.length,"Rounds on the card"],[Math.min(...rounds.map(r=>r.score)),"Lowest round"]
+].map(([b,s])=>`<div><b class="num">${b}</b><span>${s}</span></div>`).join("");
+const last=TOURS[TOURS.length-1];
+document.getElementById("latest").innerHTML=`<b>${last.v} Tour · ${last.year}</b><span>Champion: ${nm(last.champ)} (${sgn(last.board[0][1])})</span><span>${last.courses.join(" · ")}</span><a href="#tours" data-go="${last.v}">See the leaderboard →</a>`;
+
+/* ---------- tours ---------- */
+const tk=document.getElementById("tickets"), tp=document.getElementById("tour");
+tk.innerHTML=TOURS.map(t=>`<button class="ticket" role="tab" id="tab-${t.v}" aria-selected="false" aria-controls="tour" data-v="${t.v}"><b>${t.v}</b><span>${t.year} · ${t.region.split(" & ")[0]}</span></button>`).join("");
+
+function teamLine(code){ return code.split("+").map(c=>nm(c).split(" ").slice(-1)[0]).join(" & "); }
+function renderTour(v){
+  const t=TOURS.find(x=>x.v===v);
+  tk.querySelectorAll(".ticket").forEach(b=>b.setAttribute("aria-selected",b.dataset.v===v));
+  tp.setAttribute("aria-labelledby","tab-"+v);
+  const cupBox = !t.cup ? `<div><small>Ryder Cup</small><strong>Not played</strong><em>Individual format only</em></div>`
+    : t.cup.pending ? `<div><small>Ryder Cup</small><strong>To come</strong><em>${t.cup.note}</em></div>`
+    : `<div><small>Ryder Cup</small><strong>Team ${t.cup.winner==="usa"?"USA":"Europe"}</strong><em>${t.cup.note}</em></div>`;
+  const nR=t.courses.length;
+  // per-course low
+  const lows=t.courses.map((_,i)=>Math.min(...Object.values(t.gross).map(a=>a[i]).filter(x=>x!=null)));
+  const head=`<tr><th>Pos</th><th class="name">Player</th>${t.courses.map((c,i)=>`<th title="${COURSES[c].full}">R${i+1}<br>${c}</th>`).join("")}<th>Avg</th><th>${t.boardLabel}</th></tr>`;
+  let pos=0,prev=null;
+  const rows=t.board.map(([p,val],i)=>{
+    if(val!==prev){pos=i+1;prev=val;}
+    const tied=t.board.filter(b=>b[1]===val).length>1 && !(i===0) && !(p===t.runner&&t.board[0][1]===val);
+    const g=t.gross[p]||[]; const played=g.filter(x=>x!=null);
+    const avg=played.length?(played.reduce((a,b)=>a+b,0)/played.length).toFixed(1):"–";
+    const label = p===t.champ?"1":(p===t.runner?"2":(tied?"T"+pos:pos));
+    const sideCls = t.teams ? (t.teams.usa.some(x=>x.replace("*","")===p)?"usa":"eur") : null;
+    return `<tr class="${p===t.champ?"win":""}"><td class="pos">${label}</td><td class="name">${sideCls?`<span class="dot ${sideCls}" title="Team ${sideCls==="usa"?"USA":"Europe"}"></span>`:""}${nameHtml(p)}${p===t.champ?'<span class="badge j">Jacket</span>':""}</td>${
+      t.courses.map((c,j)=>g[j]==null?`<td class="dnp">DNP</td>`:`<td class="${g[j]===lows[j]?"low":""}">${g[j]}</td>`).join("")
+    }<td>${avg}</td><td class="total">${t.lowWins?sgn(val):val}</td></tr>`;
+  }).join("");
+
+  const teams = t.teams ? `<div><div class="panel-title">The teams</div><div class="teams">${["usa","eur"].map(s=>`<div class="team ${s}"><h5><span>Team ${s==="usa"?"USA":"Europe"}</span><span>${t.cup&&!t.cup.pending?t.cup[s]:""}</span></h5><ul>${t.teams[s].map(x=>`<li>${nm(x.replace("*",""))}${x.endsWith("*")?" (c)":""}</li>`).join("")}</ul></div>`).join("")}</div>${
+    t.matches?`<div class="matches">${t.matches.map(([title,ms])=>`<div><h6>${title}</h6>${ms.map(([a,r,b])=>{
+      const halved=r==="A/S"; return `<div class="match"><span class="${halved?"":"w"}">${teamLine(a)}</span><span class="r">${halved?"Halved":r==="W"?"Won":r}</span><span class="${halved?"":"l"}">${teamLine(b)}</span></div>`;}).join("")}</div>`).join("")}</div>`:""
+  }</div>` : t.roster ? `<div><div class="panel-title">The field <span>handicaps</span></div><div class="scroll"><table class="card" style="min-width:0"><tbody>${Object.entries(t.roster).sort((a,b)=>a[1]-b[1]).map(([p,h])=>`<tr><td class="name">${nameHtml(p)}</td><td>${h}</td></tr>`).join("")}</tbody></table></div></div>` : "";
+
+  const roundsTbl = t.rounds ? `<div><div class="panel-title">Stableford by round <span>against par</span></div><div class="scroll"><table class="card"><thead><tr><th class="name">Player</th>${t.courses.map((c,i)=>`<th>R${i+1}</th>`).join("")}<th>Total</th></tr></thead><tbody>${t.board.map(([p,v])=>`<tr class="${p===t.champ?"win":""}"><td class="name">${nm(p)}</td>${t.rounds[p].map(x=>`<td>${sgn(x)}</td>`).join("")}<td class="total">${sgn(v)}</td></tr>`).join("")}</tbody></table></div></div>`:"";
+
+  const lead=t.photos[0];
+  tp.innerHTML=`
+   <div class="tour-top">
+     <div>
+       <p class="eyebrow">Par 2 Bar ${t.v} · ${t.year}</p>
+       <h3>${t.name}</h3>
+       <div class="meta"><span>${t.dates}</span><span>${t.region}</span><span>${Object.keys(t.gross).length} players</span></div>
+       <p class="blurb">${t.blurb}</p>
+     </div>
+     ${lead?`<figure><img src="assets/${lead[0]}" alt="${esc(lead[1])}"><figcaption>${lead[1]}</figcaption></figure>`:`<div class="nophoto">Photos from the ${t.v} tour coming soon</div>`}
+   </div>
+   <div class="outcomes">
+     <div><small>Green Jacket</small><strong>${nm(t.champ)}</strong><em>${t.champNote}</em></div>
+     <div><small>Runner-up</small><strong>${nm(t.runner)}</strong><em>${t.lowWins?sgn(t.board[1][1]):t.board[1][1]+" "+t.boardLabel.toLowerCase()}</em></div>
+     ${cupBox}
+   </div>
+   <div class="days">${t.courses.map((c,i)=>`<span class="day"><i>DAY ${i+1}</i>${COURSES[c].full}</span>`).join("")}</div>
+   <div class="cols">
+     <div style="display:grid;gap:28px;min-width:0">
+       <div><div class="panel-title">Leaderboard <span>${t.boardNote}</span></div>
+       <div class="scroll"><table class="card"><thead>${head}</thead><tbody>${rows}</tbody></table></div>
+       <p class="note">Round columns are gross 18-hole scores; gold marks the day’s lowest. ${t.formats}</p></div>
+       ${roundsTbl}
+     </div>
+     <div style="display:grid;gap:28px;min-width:0">
+       <div class="highlight"><p class="eyebrow">Highlight of the tour</p><h4>${t.highlight.title}</h4><p style="color:var(--cream);font-size:14px;font-family:var(--f-mono)">${t.highlight.who}</p><p>${t.highlight.text}</p>${t.quote?`<p class="quote">“${t.quote}”</p>`:""}</div>
+       ${teams}
+     </div>
+   </div>
+   ${t.photos.length>1?`<div class="gallery">${t.photos.slice(1).map(([f,c])=>`<img src="assets/${f}" alt="${esc(c)}" title="${esc(c)}" loading="lazy">`).join("")}</div>`:""}`;
+  try{localStorage.setItem("p2b-tour",v);}catch(e){}
+}
+tk.addEventListener("click",e=>{const b=e.target.closest(".ticket"); if(b) renderTour(b.dataset.v);});
+tk.addEventListener("keydown",e=>{ if(!["ArrowLeft","ArrowRight"].includes(e.key)) return; const bs=[...tk.children]; const i=bs.findIndex(b=>b.getAttribute("aria-selected")==="true"); const n=bs[(i+(e.key==="ArrowRight"?1:-1)+bs.length)%bs.length]; renderTour(n.dataset.v); n.focus(); });
+document.addEventListener("click",e=>{const a=e.target.closest("[data-go]"); if(a) renderTour(a.dataset.go);});
+let startV=TOURS[TOURS.length-1].v; try{const s=localStorage.getItem("p2b-tour"); if(s&&TOURS.some(t=>t.v===s)) startV=s;}catch(e){}
+renderTour(startV);
+
+/* ---------- green jackets ---------- */
+document.getElementById("jk").innerHTML=TOURS.map(t=>`<article class="jk"><span class="ver" aria-hidden="true">${t.v}</span><span class="yr">${t.year} · ${t.name.toUpperCase()}</span><span class="who">${nm(t.champ)}</span><span class="how">${t.champNote}</span><span class="how" style="font-family:var(--f-mono);font-size:12px">Runner-up · ${nm(t.runner)}</span></article>`).join("");
+const multi=Object.values(players).filter(p=>p.wins.length>1).map(p=>`<b>${nm(p.k)}</b> (${p.wins.join(", ")})`);
+const runs=Object.values(players).filter(p=>p.runs.length>1).map(p=>`<b>${nm(p.k)}</b> (${p.runs.join(", ")})`);
+document.getElementById("multi").innerHTML=`Multiple champions: ${multi.join(", ")}. Most runner-up finishes: ${runs.join(", ")}.`;
+
+/* ---------- ryder cup ---------- */
+const decided=TOURS.filter(t=>t.cup&&!t.cup.pending);
+const usaW=decided.filter(t=>t.cup.winner==="usa").length, eurW=decided.filter(t=>t.cup.winner==="eur").length;
+document.getElementById("tally").innerHTML=`<div class="u"><b>${usaW}</b><small>Team USA</small></div><div class="v">v</div><div class="e"><b>${eurW}</b><small>Team Europe</small></div>`;
+document.getElementById("cuprows").innerHTML=TOURS.map(t=>{
+  if(!t.cup) return `<div class="cr"><span class="y">${t.year}</span><div class="bar"><span class="mid">No Ryder Cup</span></div><span class="res">Individual only</span></div>`;
+  if(t.cup.pending) return `<div class="cr"><span class="y">${t.year}</span><div class="bar"><span class="mid">Result to come</span></div><span class="res">Not recorded yet</span></div>`;
+  const tot=t.cup.usa+t.cup.eur;
+  return `<div class="cr"><span class="y">${t.year}</span><div class="bar" role="img" aria-label="USA ${t.cup.usa}, Europe ${t.cup.eur}"><span class="u" style="width:${t.cup.usa/tot*100}%">${t.cup.usa}</span><span class="e" style="width:${t.cup.eur/tot*100}%">${t.cup.eur}</span></div><span class="res"><b>${t.cup.winner==="usa"?"USA":"Europe"}</b>${t.cup.usa===t.cup.eur?" (playoff)":""}</span></div>`;
+}).join("");
+
+/* ---------- records ---------- */
+const best=[...rounds].sort((a,b)=>a.score-b.score);
+const sub80=best.filter(r=>r.score<80);
+const most=Object.values(players).sort((a,b)=>b.years.length-a.years.length)[0];
+const sub90=Object.values(players).sort((a,b)=>b.sub90-a.sub90)[0];
+const avgMin=Object.values(players).filter(p=>p.n>=6).sort((a,b)=>a.avg-b.avg)[0];
+const recs=[
+  ["Best round of 18",best[0].score,`${nm(best[0].p)}`,`${best[0].course}, ${best[0].year}`],
+  ["Best nine holes",35,"Jonty Doyle","George front nine, 2025"],
+  ["Rounds under 80",sub80.length,[...new Set(sub80.map(r=>nm(r.p)))].join(", "),sub80.map(r=>`${r.score} ${r.course} ’${String(r.year).slice(2)}`).join(" · ")],
+  ["Most appearances",most.years.length,nm(most.k),"Every tour since 2020"],
+  ["Green Jackets",2,"James Godlonton","2021 and 2022, the only repeat winner"],
+  ["Runner-up finishes",2,"Werner Biesenbach","2023 and 2024"],
+  ["Best scoring average",avgMin.avg.toFixed(2),nm(avgMin.k),`${avgMin.n} rounds, minimum six`],
+  ["Most sub-90 rounds",sub90.sub90,nm(sub90.k),`From ${sub90.n} rounds played`],
+  ["Biggest field",16,"6.0 Tour","December 2025"],
+  ["Most birdies in a round",3,"Werner Biesenbach","Pezula, 2024 · year book"],
+  ["Most pars in a round",10,"Werner Biesenbach & Kieran Witthuhn","Goose Valley, 2024 · year book"],
+  ["Fewest bogeys in a round",7,"Werner Biesenbach","Simola, 2024 · year book"],
+  ["Par-or-better streak",5,"Werner Biesenbach & James Godlonton","Consecutive holes · year book"],
+  ["Longest no-drop streak",8,"Richard Duke & Stephen Mathew","Goose Valley, 2024 · year book"],
+  ["Best net round",59,"Richard Duke","Shot 88 off a 29 handicap, Goose Valley 2024"],
+  ["Par 3 scoring average","3.61","Kieran Witthuhn","Year book, 2020–2024"]
+];
+document.getElementById("recs").innerHTML=recs.map(([a,b,c,d])=>`<div class="rec"><small>${a}</small><b class="num">${b}</b><span>${c}</span><i>${d}</i></div>`).join("");
+
+/* ---------- players ---------- */
+const years=TOURS.map(t=>t.year);
+let sortBy="avg";
+function renderPlayers(){
+  const q=document.getElementById("q").value.trim().toLowerCase();
+  let list=Object.values(players).filter(p=>(nm(p.k)+" "+(P[p.k].nick||"")+" "+(P[p.k].full||"")).toLowerCase().includes(q));
+  list.sort(sortBy==="avg"?(a,b)=>a.avg-b.avg:sortBy==="tours"?(a,b)=>b.years.length-a.years.length||a.avg-b.avg:(a,b)=>nm(a.k).split(" ").slice(-1)[0].localeCompare(nm(b.k).split(" ").slice(-1)[0]));
+  document.getElementById("ptable").innerHTML=`<thead><tr><th class="name">Player</th><th>Tours</th><th>Years</th><th>Avg</th><th>Best</th><th>Rounds</th><th>Ryder Cup</th></tr></thead><tbody>${
+    list.length?list.map(p=>`<tr class="${p.wins.length?"win":""}"><td class="name">${nameHtml(p.k)}${p.wins.length?`<span class="badge j">${p.wins.length>1?p.wins.length+"× ":""}Jacket</span>`:""}</td><td>${p.years.length}</td><td><span class="yrs">${years.map(y=>`<i class="${p.wins.includes(y)?"w":p.years.includes(y)?"on":""}" title="${y}">${String(y).slice(2)}</i>`).join("")}</span></td><td class="total">${p.avg.toFixed(1)}</td><td>${p.best.score} <span style="color:var(--muted)">${p.best.course} ’${String(p.best.year).slice(2)}</span></td><td>${p.n}</td><td>${p.cupOf?`${p.cup}/${p.cupOf}`:"–"}</td></tr>`).join("")
+    :`<tr><td colspan="7" class="name" style="color:var(--muted)">No player matches “${esc(q)}”.</td></tr>`}</tbody>`;
+}
+document.getElementById("q").addEventListener("input",renderPlayers);
+document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",()=>{sortBy=b.dataset.sort;document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",x===b));renderPlayers();}));
+renderPlayers();
+
+/* ---------- courses ---------- */
+document.getElementById("clist").innerHTML=allCourses.map(c=>{
+  const r=rounds.filter(x=>x.course===c).sort((a,b)=>a.score-b.score);
+  const avg=r.reduce((a,b)=>a+b.score,0)/r.length;
+  const yrs=[...new Set(r.map(x=>x.year))].sort();
+  return {c,r,avg,yrs};
+}).sort((a,b)=>a.r[0].score-b.r[0].score).map(({c,r,avg,yrs})=>`<article class="course"><div><h4>${c}</h4><div class="where">${COURSES[c].full} · ${COURSES[c].where}</div></div><ol>${r.slice(0,3).map(x=>`<li><span>${nm(x.p)} <span style="color:var(--muted)">’${String(x.year).slice(2)}</span></span><b>${x.score}</b></li>`).join("")}</ol><div class="foot"><span>Tour average ${avg.toFixed(1)}</span><span>${r.length} rounds · ${yrs.join(", ")}</span></div></article>`).join("");
+</script>
