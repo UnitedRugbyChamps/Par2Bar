@@ -103,3 +103,7 @@ worldwide; picking one saves it so everyone on the tour shares the same card.
 - `functions/` Cloud Functions: feed items and pushes on every score, tee time
   reminders every five minutes.
 - `firestore.rules` who can read and change what.
+
+## Club website
+
+The Par 2 Bar club website is a static page in `website/` (`index.html` plus `assets/`). Every push to the default branch that touches `website/` publishes it to GitHub Pages via `.github/workflows/website.yml`, at https://unitedrugbychamps.github.io/Par2Bar/. Pages must be set to **Settings → Pages → Source: GitHub Actions** once.
